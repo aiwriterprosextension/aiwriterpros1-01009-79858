@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
@@ -101,11 +102,11 @@ const SettingsPage = () => {
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8 max-w-4xl">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Settings</h1>
-            <p className="text-muted-foreground">Customize your content preferences and export options</p>
+      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <div className="p-4 md:p-8 max-w-4xl">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">Settings</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Customize your content preferences and export options</p>
           </div>
 
           {/* Content Preferences */}
@@ -470,6 +471,8 @@ const SettingsPage = () => {
           </div>
         </div>
       </main>
+      
+      <MobileBottomNav />
     </div>
   );
 };
