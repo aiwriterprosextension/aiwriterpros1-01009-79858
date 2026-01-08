@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import { ImageSettings, ImageConfig } from "@/components/ImageSettings";
+import { GeneratedImagesDisplay, GeneratedImage } from "@/components/GeneratedImagesDisplay";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +20,12 @@ const AmazonReviewGenerator = () => {
   const [url, setUrl] = useState("");
   const [generating, setGenerating] = useState(false);
   const [article, setArticle] = useState("");
+  const [imageConfig, setImageConfig] = useState<ImageConfig>({
+    includeFeaturedImage: true,
+    additionalImageCount: 5,
+    imageSource: "amazon",
+  });
+  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [configuration, setConfiguration] = useState({
     wordCount: 3000,
     tone: "Balanced",
@@ -224,37 +233,37 @@ const AmazonReviewGenerator = () => {
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8 max-w-6xl mx-auto">
+      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <div className="p-4 md:p-8 max-w-6xl mx-auto">
           {/* Progress Indicator */}
-          <div className="mb-8">
+          <div className="mb-6 md:mb-8">
             <div className="flex items-center justify-between mb-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex items-center flex-1">
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${
+                  <div className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full font-bold text-sm md:text-base ${
                     step >= i ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                   }`}>
                     {i}
                   </div>
                   {i < 4 && (
-                    <div className={`flex-1 h-1 mx-2 ${step > i ? "bg-primary" : "bg-muted"}`} />
+                    <div className={`flex-1 h-1 mx-1 md:mx-2 ${step > i ? "bg-primary" : "bg-muted"}`} />
                   )}
                 </div>
               ))}
             </div>
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Product Input</span>
-              <span>Configuration</span>
-              <span>Generation</span>
-              <span>Review & Export</span>
+            <div className="flex justify-between text-xs md:text-sm text-muted-foreground">
+              <span>Input</span>
+              <span>Config</span>
+              <span>Generate</span>
+              <span>Export</span>
             </div>
           </div>
 
           {/* Step 1: Product Input */}
           {step === 1 && (
-            <div className="card-elevated p-8">
-              <h1 className="text-3xl font-bold mb-2">Create Amazon Product Review</h1>
-              <p className="text-muted-foreground mb-8">
+            <div className="card-elevated p-4 md:p-8">
+              <h1 className="text-2xl md:text-3xl font-bold mb-2">Create Amazon Product Review</h1>
+              <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8">
                 Enter an Amazon product URL to begin creating your comprehensive review article
               </p>
 
@@ -309,11 +318,11 @@ const AmazonReviewGenerator = () => {
 
           {/* Step 2: Configuration */}
           {step === 2 && (
-            <div className="card-elevated p-8">
-              <h1 className="text-3xl font-bold mb-6">Content Configuration</h1>
+            <div className="card-elevated p-4 md:p-8">
+              <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6">Content Configuration</h1>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <div className="lg:col-span-1">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+                <div className="lg:col-span-1 order-2 lg:order-1">
                   <div className="card-elevated p-4">
                     <img
                       src="https://placehold.co/400x400"
@@ -329,7 +338,7 @@ const AmazonReviewGenerator = () => {
                   </div>
                 </div>
 
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 space-y-4 md:space-y-6 order-1 lg:order-2">
                   <div>
                     <Label>Target Word Count: {configuration.wordCount.toLocaleString()}</Label>
                     <input 
@@ -440,48 +449,13 @@ const AmazonReviewGenerator = () => {
                     </div>
                   </div>
 
+                  {/* Image Settings Component */}
                   <div className="border-t pt-4">
-                    <h3 className="font-semibold mb-3">Image Settings</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label>Number of Images</Label>
-                        <select 
-                          value={configuration.imageCount}
-                          onChange={(e) => setConfiguration({...configuration, imageCount: parseInt(e.target.value)})}
-                          className="w-full mt-1 px-3 py-2 border border-input rounded-md bg-background"
-                        >
-                          <option value="0">0</option>
-                          <option value="3">3</option>
-                          <option value="5">5</option>
-                          <option value="7">7</option>
-                          <option value="10">10</option>
-                          <option value="15">15</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <Label>Image Format</Label>
-                        <select 
-                          value={configuration.imageFormat}
-                          onChange={(e) => setConfiguration({...configuration, imageFormat: e.target.value})}
-                          className="w-full mt-1 px-3 py-2 border border-input rounded-md bg-background"
-                        >
-                          <option>WebP</option>
-                          <option>JPEG</option>
-                          <option>PNG</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center mt-3">
-                      <input
-                        type="checkbox"
-                        checked={configuration.imageOptimization}
-                        onChange={(e) => setConfiguration({...configuration, imageOptimization: e.target.checked})}
-                        className="w-4 h-4 rounded border-input text-primary"
-                      />
-                      <label className="ml-2 text-sm">Optimize images (max 800px, 80% quality, lazy loading)</label>
-                    </div>
+                    <ImageSettings
+                      config={imageConfig}
+                      onChange={setImageConfig}
+                      showAmazonOption={true}
+                    />
                   </div>
 
                   <div className="border-t pt-4">
@@ -567,11 +541,18 @@ const AmazonReviewGenerator = () => {
                 </div>
               </div>
 
-              <div className="flex gap-4">
-                <Button onClick={() => setStep(1)} variant="outline">
+              {/* Additional Column: Generated Images Preview */}
+              {generatedImages.length > 0 && (
+                <div className="lg:col-span-3">
+                  <GeneratedImagesDisplay images={generatedImages} />
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row gap-4 lg:col-span-3">
+                <Button onClick={() => setStep(1)} variant="outline" className="flex-1 sm:flex-none">
                   <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button onClick={handleGenerate} className="btn-hero">
+                <Button onClick={handleGenerate} className="btn-hero flex-1 sm:flex-none">
                   Generate Article <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </div>
@@ -580,80 +561,80 @@ const AmazonReviewGenerator = () => {
 
           {/* Step 3: Generation Progress */}
           {step === 3 && (
-            <div className="card-elevated p-16 text-center">
-              <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto mb-6" />
-              <h2 className="text-2xl font-bold mb-4">Generating Your Article...</h2>
+            <div className="card-elevated p-8 md:p-16 text-center">
+              <Loader2 className="h-12 w-12 md:h-16 md:w-16 animate-spin text-primary mx-auto mb-4 md:mb-6" />
+              <h2 className="text-xl md:text-2xl font-bold mb-4">Generating Your Article...</h2>
               <div className="max-w-md mx-auto space-y-3 text-left">
                 {generationProgress && (
-                  <p className="text-lg font-semibold text-primary flex items-center">
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  <p className="text-base md:text-lg font-semibold text-primary flex items-center justify-center">
+                    <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin mr-2" />
                     {generationProgress}
                   </p>
                 )}
               </div>
-              <p className="text-muted-foreground mt-6">This may take 30-60 seconds...</p>
+              <p className="text-sm md:text-base text-muted-foreground mt-4 md:mt-6">This may take 30-60 seconds...</p>
             </div>
           )}
 
           {/* Step 4: Review & Export */}
           {step === 4 && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <div className="card-elevated p-8">
-                  <h2 className="text-2xl font-bold mb-4">Article Preview</h2>
-                  <div className="prose prose-slate max-w-none">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+              <div className="lg:col-span-2 order-2 lg:order-1">
+                <div className="card-elevated p-4 md:p-8">
+                  <h2 className="text-xl md:text-2xl font-bold mb-4">Article Preview</h2>
+                  <div className="prose prose-slate max-w-none text-sm md:text-base">
                     <div className="whitespace-pre-wrap">{article}</div>
                   </div>
                   
                   {schema && (
-                    <div className="mt-8">
-                      <h3 className="text-xl font-bold mb-2">Schema Markup</h3>
-                      <div className="bg-muted p-4 rounded-md overflow-x-auto">
-                        <pre className="text-sm">{JSON.stringify(schema, null, 2)}</pre>
+                    <div className="mt-6 md:mt-8">
+                      <h3 className="text-lg md:text-xl font-bold mb-2">Schema Markup</h3>
+                      <div className="bg-muted p-3 md:p-4 rounded-md overflow-x-auto">
+                        <pre className="text-xs md:text-sm">{JSON.stringify(schema, null, 2)}</pre>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="lg:col-span-1">
-                <div className="card-elevated p-6 sticky top-8">
-                  <h3 className="text-xl font-bold mb-4">Article Metrics</h3>
-                  <div className="space-y-4 mb-6">
+              <div className="lg:col-span-1 order-1 lg:order-2">
+                <div className="card-elevated p-4 md:p-6 lg:sticky lg:top-8">
+                  <h3 className="text-lg md:text-xl font-bold mb-4">Article Metrics</h3>
+                  <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
                     <div>
-                      <p className="text-sm text-muted-foreground">Word Count</p>
-                      <p className="text-2xl font-bold">{wordCount.toLocaleString()}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Word Count</p>
+                      <p className="text-xl md:text-2xl font-bold">{wordCount.toLocaleString()}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Configuration</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Configuration</p>
                       <p className="text-sm">Tone: {configuration.tone}</p>
                       <p className="text-sm">Target: {configuration.wordCount.toLocaleString()} words</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Generated</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Generated</p>
                       <p className="text-sm">{new Date().toLocaleDateString()}</p>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <Button onClick={() => handleExport('html')} className="w-full bg-primary text-primary-foreground">
+                  <div className="grid grid-cols-2 lg:grid-cols-1 gap-2 md:gap-3">
+                    <Button onClick={() => handleExport('html')} className="w-full bg-primary text-primary-foreground text-sm">
                       <Download className="mr-2 h-4 w-4" />
-                      Export as HTML
+                      Export HTML
                     </Button>
-                    <Button onClick={() => handleExport('markdown')} variant="outline" className="w-full">
+                    <Button onClick={() => handleExport('markdown')} variant="outline" className="w-full text-sm">
                       <Download className="mr-2 h-4 w-4" />
-                      Export as Markdown
+                      Export MD
                     </Button>
-                    <Button onClick={handleCopy} variant="outline" className="w-full">
+                    <Button onClick={handleCopy} variant="outline" className="w-full text-sm">
                       <Copy className="mr-2 h-4 w-4" />
-                      Copy to Clipboard
+                      Copy
                     </Button>
-                    <Button onClick={handleSaveArticle} variant="outline" className="w-full">
-                      Save to My Articles
+                    <Button onClick={handleSaveArticle} variant="outline" className="w-full text-sm">
+                      Save Article
                     </Button>
                   </div>
 
-                  <div className="mt-6 pt-6 border-t">
+                  <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t hidden lg:block">
                     <div className="space-y-2">
                       <div className="flex items-center text-sm">
                         <CheckCircle className="h-4 w-4 text-secondary mr-2" />
@@ -661,7 +642,7 @@ const AmazonReviewGenerator = () => {
                       </div>
                       <div className="flex items-center text-sm">
                         <CheckCircle className="h-4 w-4 text-secondary mr-2" />
-                        <span>30+ FAQ questions</span>
+                        <span>{configuration.faqCount}+ FAQ questions</span>
                       </div>
                       <div className="flex items-center text-sm">
                         <CheckCircle className="h-4 w-4 text-secondary mr-2" />
@@ -675,6 +656,8 @@ const AmazonReviewGenerator = () => {
           )}
         </div>
       </main>
+      
+      <MobileBottomNav />
     </div>
   );
 };

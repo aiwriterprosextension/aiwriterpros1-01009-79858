@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Download, Copy, FileText } from "lucide-react";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import { convertMarkdownToHtml } from "@/lib/markdown-to-html";
 
 const ProductComparisonGenerator = () => {
@@ -128,14 +129,14 @@ const ProductComparisonGenerator = () => {
   return (
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
-      <main className="flex-1 overflow-y-auto">
-        <div className="container mx-auto p-8 max-w-7xl">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">Product Comparison Generator</h1>
-            <p className="text-muted-foreground">Create detailed head-to-head product comparisons</p>
+      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <div className="container mx-auto p-4 md:p-8 max-w-7xl">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-4xl font-bold mb-2">Product Comparison Generator</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Create detailed head-to-head product comparisons</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
             <div className="space-y-6">
               <Card>
                 <CardHeader>
@@ -382,6 +383,7 @@ const ProductComparisonGenerator = () => {
           </div>
         </div>
       </main>
+      <MobileBottomNav />
     </div>
   );
 };

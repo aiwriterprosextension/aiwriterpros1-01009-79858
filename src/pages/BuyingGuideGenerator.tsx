@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -181,28 +182,28 @@ const BuyingGuideGenerator = () => {
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8 max-w-6xl mx-auto">
-          <div className="mb-8">
+      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <div className="p-4 md:p-8 max-w-6xl mx-auto">
+          <div className="mb-6 md:mb-8">
             <div className="flex items-center justify-between mb-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex items-center flex-1">
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${
+                  <div className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full font-bold text-sm md:text-base ${
                     step >= i ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                   }`}>
                     {i}
                   </div>
                   {i < 4 && (
-                    <div className={`flex-1 h-1 mx-2 ${step > i ? "bg-primary" : "bg-muted"}`} />
+                    <div className={`flex-1 h-1 mx-1 md:mx-2 ${step > i ? "bg-primary" : "bg-muted"}`} />
                   )}
                 </div>
               ))}
             </div>
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Topic Input</span>
-              <span>Configuration</span>
-              <span>Generation</span>
-              <span>Review & Export</span>
+            <div className="flex justify-between text-xs md:text-sm text-muted-foreground">
+              <span>Topic</span>
+              <span>Config</span>
+              <span>Generate</span>
+              <span>Export</span>
             </div>
           </div>
 
@@ -418,6 +419,8 @@ const BuyingGuideGenerator = () => {
           )}
         </div>
       </main>
+      
+      <MobileBottomNav />
     </div>
   );
 };

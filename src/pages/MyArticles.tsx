@@ -4,6 +4,7 @@ import { Search, Filter, FileText, Eye, Edit, Trash2, Download, Loader2 } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -109,17 +110,17 @@ const MyArticles = () => {
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">My Articles</h1>
-            <p className="text-muted-foreground">Manage and organize all your generated content</p>
+      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <div className="p-4 md:p-8">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">My Articles</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Manage and organize all your generated content</p>
           </div>
 
           {/* Filters and Search */}
-          <div className="card-elevated p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
+          <div className="card-elevated p-4 md:p-6 mb-4 md:mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              <div className="relative sm:col-span-2 lg:col-span-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search articles..."
@@ -229,6 +230,8 @@ const MyArticles = () => {
           )}
         </div>
       </main>
+      
+      <MobileBottomNav />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import DashboardSidebar from '@/components/DashboardSidebar';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -192,10 +193,10 @@ export default function ContentLibrary() {
   return (
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
-      <div className="flex-1 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
+      <div className="flex-1 p-4 md:p-6 pb-20 md:pb-6">
+        <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Content Library</h1>
+            <h1 className="text-2xl md:text-3xl font-bold">Content Library</h1>
             <div className="flex gap-2">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'outline'}
@@ -391,6 +392,8 @@ export default function ContentLibrary() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <MobileBottomNav />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { TrendingUp, FileText, DollarSign, BarChart3, Loader2 } from "lucide-react";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import { PieChart, Pie, Cell, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -91,11 +92,11 @@ const Analytics = () => {
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Analytics Dashboard</h1>
-            <p className="text-muted-foreground">Track your content performance and insights</p>
+      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <div className="p-4 md:p-8">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">Analytics Dashboard</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Track your content performance and insights</p>
           </div>
 
           {loading ? (
@@ -105,26 +106,26 @@ const Analytics = () => {
           ) : (
             <>
               {/* Overview Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
                 {metricsCards.map((metric, i) => (
-                  <div key={i} className="card-elevated p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 bg-primary/10 rounded-lg">
-                        <metric.icon className="h-6 w-6 text-primary" />
+                  <div key={i} className="card-elevated p-3 md:p-6">
+                    <div className="flex items-center justify-between mb-2 md:mb-4">
+                      <div className="p-2 md:p-3 bg-primary/10 rounded-lg">
+                        <metric.icon className="h-4 w-4 md:h-6 md:w-6 text-primary" />
                       </div>
-                      <span className="text-sm font-semibold text-secondary">{metric.change}</span>
+                      <span className="text-xs font-semibold text-secondary hidden sm:block">{metric.change}</span>
                     </div>
-                    <p className="text-2xl font-bold mb-1">{metric.value}</p>
-                    <p className="text-sm text-muted-foreground">{metric.label}</p>
+                    <p className="text-lg md:text-2xl font-bold mb-1">{metric.value}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{metric.label}</p>
                   </div>
                 ))}
               </div>
 
               {/* Charts Row 1 */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div className="card-elevated p-6">
-                  <h2 className="text-xl font-bold mb-4">Articles Created Over Time</h2>
-                  <ResponsiveContainer width="100%" height={300}>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+                <div className="card-elevated p-4 md:p-6">
+                  <h2 className="text-lg md:text-xl font-bold mb-4">Articles Created Over Time</h2>
+                  <ResponsiveContainer width="100%" height={250}>
                     <LineChart data={lineData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
@@ -202,6 +203,8 @@ const Analytics = () => {
           )}
         </div>
       </main>
+      
+      <MobileBottomNav />
     </div>
   );
 };
