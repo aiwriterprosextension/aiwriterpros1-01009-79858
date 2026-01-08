@@ -82,15 +82,15 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background">
       <DashboardSidebar />
 
       <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
+        <div className="p-4 md:p-6 lg:p-8">
           {/* Welcome Banner */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}!</h1>
-            <p className="text-muted-foreground">Here's what's happening with your content today</p>
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}!</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Here's what's happening with your content today</p>
           </div>
 
           {loading ? (
@@ -100,24 +100,24 @@ const Dashboard = () => {
           ) : null}
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
             {statsCards.map((stat, i) => (
-              <div key={i} className="card-elevated p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <stat.icon className="h-6 w-6 text-primary" />
+              <div key={i} className="card-elevated p-4 md:p-6">
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <div className="p-2 md:p-3 bg-primary/10 rounded-lg">
+                    <stat.icon className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                   </div>
                 </div>
-                <p className="text-3xl font-bold mb-1">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className="text-2xl md:text-3xl font-bold mb-1">{stat.value}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{stat.label}</p>
               </div>
             ))}
           </div>
 
           {/* CTA Button */}
-          <div className="mb-8">
+          <div className="mb-6 md:mb-8">
             <Link to="/dashboard/create/amazon-review">
-              <Button size="lg" className="btn-hero">
+              <Button size="lg" className="btn-hero w-full sm:w-auto">
                 <Plus className="h-5 w-5 mr-2" />
                 Create Your First Article
               </Button>
@@ -125,64 +125,64 @@ const Dashboard = () => {
           </div>
 
           {/* Quick Start Cards */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">Quick Start</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Quick Start</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
               <Link to="/dashboard/create/amazon-review">
-                <div className="card-interactive p-6">
-                  <div className="p-3 bg-secondary/10 rounded-lg w-fit mb-4">
-                    <FileText className="h-6 w-6 text-secondary" />
+                <div className="card-interactive p-4 md:p-6">
+                  <div className="p-2 md:p-3 bg-secondary/10 rounded-lg w-fit mb-3 md:mb-4">
+                    <FileText className="h-5 w-5 md:h-6 md:w-6 text-secondary" />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Amazon Review</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="text-base md:text-lg font-bold mb-1 md:mb-2">Amazon Review</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
                     Generate comprehensive product reviews
                   </p>
                 </div>
               </Link>
 
               <Link to="/dashboard/create/buying-guide">
-                <div className="card-interactive p-6">
-                  <div className="p-3 bg-primary/10 rounded-lg w-fit mb-4">
-                    <BookOpen className="h-6 w-6 text-primary" />
+                <div className="card-interactive p-4 md:p-6">
+                  <div className="p-2 md:p-3 bg-primary/10 rounded-lg w-fit mb-3 md:mb-4">
+                    <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Buying Guide</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="text-base md:text-lg font-bold mb-1 md:mb-2">Buying Guide</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
                     Create detailed buyer's guides
                   </p>
                 </div>
               </Link>
 
               <Link to="/dashboard/create/product-roundup">
-                <div className="card-interactive p-6">
-                  <div className="p-3 bg-accent/10 rounded-lg w-fit mb-4">
-                    <TrendingUp className="h-6 w-6 text-accent" />
+                <div className="card-interactive p-4 md:p-6">
+                  <div className="p-2 md:p-3 bg-accent/10 rounded-lg w-fit mb-3 md:mb-4">
+                    <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-accent" />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Product Roundup</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="text-base md:text-lg font-bold mb-1 md:mb-2">Product Roundup</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
                     Generate "Best of" product lists
                   </p>
                 </div>
               </Link>
 
               <Link to="/dashboard/create/how-to-article">
-                <div className="card-interactive p-6">
-                  <div className="p-3 bg-primary/10 rounded-lg w-fit mb-4">
-                    <FileText className="h-6 w-6 text-primary" />
+                <div className="card-interactive p-4 md:p-6">
+                  <div className="p-2 md:p-3 bg-primary/10 rounded-lg w-fit mb-3 md:mb-4">
+                    <FileText className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">How-To Guide</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="text-base md:text-lg font-bold mb-1 md:mb-2">How-To Guide</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
                     Create step-by-step tutorials
                   </p>
                 </div>
               </Link>
 
               <Link to="/dashboard/create/product-comparison">
-                <div className="card-interactive p-6">
-                  <div className="p-3 bg-secondary/10 rounded-lg w-fit mb-4">
-                    <BookOpen className="h-6 w-6 text-secondary" />
+                <div className="card-interactive p-4 md:p-6">
+                  <div className="p-2 md:p-3 bg-secondary/10 rounded-lg w-fit mb-3 md:mb-4">
+                    <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-secondary" />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Product Comparison</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="text-base md:text-lg font-bold mb-1 md:mb-2">Product Comparison</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
                     Compare products head-to-head
                   </p>
                 </div>
@@ -191,29 +191,29 @@ const Dashboard = () => {
           </div>
 
           {/* Recent Articles */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">Recent Articles</h2>
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Recent Articles</h2>
             {!loading && recentArticles.length === 0 ? (
-              <div className="card-elevated p-8 text-center">
+              <div className="card-elevated p-6 md:p-8 text-center">
                 <div className="max-w-md mx-auto">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileText className="h-8 w-8 text-muted-foreground" />
+                  <div className="w-12 h-12 md:w-16 md:h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <FileText className="h-6 w-6 md:h-8 md:w-8 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">No articles yet</h3>
-                  <p className="text-muted-foreground mb-4">
+                  <h3 className="text-base md:text-lg font-semibold mb-2">No articles yet</h3>
+                  <p className="text-sm text-muted-foreground mb-3 md:mb-4">
                     Create your first article to get started!
                   </p>
                   <Link to="/dashboard/create/amazon-review">
-                    <Button>Create Article</Button>
+                    <Button className="w-full sm:w-auto">Create Article</Button>
                   </Link>
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {recentArticles.map((article) => (
-                  <div key={article.id} className="card-elevated p-4">
-                    <h3 className="font-semibold mb-1">{article.title}</h3>
-                    <p className="text-sm text-muted-foreground">
+                  <div key={article.id} className="card-elevated p-3 md:p-4">
+                    <h3 className="font-semibold mb-1 text-sm md:text-base line-clamp-1">{article.title}</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground">
                       {article.word_count?.toLocaleString() || 0} words • {new Date(article.created_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -224,19 +224,19 @@ const Dashboard = () => {
 
           {/* Analytics Overview */}
           <div>
-            <h2 className="text-2xl font-bold mb-4">Analytics Overview</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Analytics Overview</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {/* Pie Chart */}
-              <div className="card-elevated p-6">
-                <h3 className="text-lg font-semibold mb-4">Articles by Type</h3>
-                <ResponsiveContainer width="100%" height={200}>
+              <div className="card-elevated p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Articles by Type</h3>
+                <ResponsiveContainer width="100%" height={180}>
                   <PieChart>
                     <Pie
                       data={pieData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      outerRadius={80}
+                      outerRadius={60}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -247,17 +247,17 @@ const Dashboard = () => {
                     <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
-                <p className="text-center text-sm text-muted-foreground mt-2">No data yet</p>
+                <p className="text-center text-xs md:text-sm text-muted-foreground mt-2">No data yet</p>
               </div>
 
               {/* Line Chart */}
-              <div className="card-elevated p-6">
-                <h3 className="text-lg font-semibold mb-4">Word Count Trends</h3>
-                <ResponsiveContainer width="100%" height={200}>
+              <div className="card-elevated p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Word Count Trends</h3>
+                <ResponsiveContainer width="100%" height={180}>
                   <LineChart data={lineData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip />
                     <Line type="monotone" dataKey="articles" stroke="#1e40af" strokeWidth={2} />
                   </LineChart>
@@ -265,13 +265,13 @@ const Dashboard = () => {
               </div>
 
               {/* Bar Chart */}
-              <div className="card-elevated p-6">
-                <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
-                <ResponsiveContainer width="100%" height={200}>
+              <div className="card-elevated p-4 md:p-6 md:col-span-2 lg:col-span-1">
+                <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Performance Metrics</h3>
+                <ResponsiveContainer width="100%" height={180}>
                   <BarChart data={barData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="range" />
-                    <YAxis />
+                    <XAxis dataKey="range" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip />
                     <Bar dataKey="count" fill="#14b8a6" />
                   </BarChart>
