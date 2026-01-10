@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, ChevronDown, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -82,8 +83,9 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
+          {/* CTA Button & Theme Toggle */}
+          <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
             <Link to="/auth">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                 Get Started Free

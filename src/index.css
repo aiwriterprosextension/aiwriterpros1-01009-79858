@@ -57,15 +57,67 @@ All colors MUST be HSL.
     --gradient-hero: linear-gradient(135deg, hsl(217 91% 40%) 0%, hsl(173 80% 40%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 14% 98%) 100%);
     
+    /* Sales page gradients - ViralReel inspired */
+    --gradient-sales: linear-gradient(135deg, hsl(270 50% 15%) 0%, hsl(240 50% 10%) 50%, hsl(270 40% 8%) 100%);
+    --gradient-cta: linear-gradient(135deg, hsl(142 76% 45%) 0%, hsl(142 76% 36%) 100%);
+    --gradient-accent-glow: linear-gradient(135deg, hsl(328 85% 55%) 0%, hsl(280 85% 55%) 100%);
+    
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 30px hsl(328 85% 55% / 0.3);
     
     /* Transitions */
     --transition-base: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-colors: color, background-color, border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 210 20% 98%;
+    
+    --card: 222 47% 11%;
+    --card-foreground: 210 20% 98%;
+    
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 20% 98%;
+    
+    --primary: 217 91% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 217 91% 50%;
+    
+    --secondary: 173 80% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-hover: 173 80% 45%;
+    
+    --accent: 38 92% 55%;
+    --accent-foreground: 222 47% 11%;
+    
+    --muted: 222 47% 15%;
+    --muted-foreground: 215 20% 65%;
+    
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 222 47% 20%;
+    --input: 222 47% 20%;
+    --ring: 217 91% 55%;
+    
+    /* Sidebar tokens - dark */
+    --sidebar-background: 222 47% 10%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 217 91% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 47% 15%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 222 47% 20%;
+    --sidebar-ring: 217 91% 55%;
+    
+    /* Gradients - dark */
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 35%) 0%, hsl(173 80% 35%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(222 47% 11%) 0%, hsl(222 47% 8%) 100%);
   }
 }
 
