@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { CompetitorInsights, CompetitorData } from "@/components/CompetitorInsights";
 import { toast } from "sonner";
 
 const STEPS = [
@@ -78,9 +79,8 @@ const ContentWizard = () => {
   
   // Step 3: Competitor Analysis
   const [targetKeyword, setTargetKeyword] = useState("");
-  const [analyzeCompetitors, setAnalyzeCompetitors] = useState(true);
-  const [competitorInsights, setCompetitorInsights] = useState<string[]>([]);
-  
+  const [competitorData, setCompetitorData] = useState<CompetitorData | null>(null);
+
   // Step 4: SEO Strategy
   const [seoTitle, setSeoTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
@@ -257,42 +257,32 @@ const ContentWizard = () => {
           <div className="space-y-6">
             <div>
               <Label htmlFor="targetKeyword" className="text-base font-semibold">Target Keyword</Label>
-              <p className="text-sm text-muted-foreground mb-2">Enter the main keyword you want to rank for</p>
+              <p className="text-sm text-muted-foreground mb-2">Enter the main keyword you want to rank for (or use the product name)</p>
               <Input
                 id="targetKeyword"
                 placeholder="e.g., best noise cancelling headphones"
-                value={targetKeyword}
+                value={targetKeyword || productName}
                 onChange={(e) => setTargetKeyword(e.target.value)}
               />
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="analyzeCompetitors"
-                checked={analyzeCompetitors}
-                onCheckedChange={(checked) => setAnalyzeCompetitors(checked as boolean)}
-              />
-              <Label htmlFor="analyzeCompetitors" className="cursor-pointer">
-                Analyze top 10 Google results to identify content gaps
-              </Label>
-            </div>
+            <CompetitorInsights 
+              keyword={targetKeyword || productName}
+              articleType={articleType}
+              onInsightsReceived={(data) => {
+                setCompetitorData(data);
+                // Auto-fill SEO fields if we got good data
+                if (data.targetWordCount) {
+                  toast.info(`Target word count: ${data.targetWordCount}+ words`);
+                }
+              }}
+            />
 
-            {analyzeCompetitors && (
-              <div className="card-elevated p-4 bg-muted/50">
-                <h4 className="font-semibold mb-2">Competitor Analysis Results</h4>
-                <p className="text-sm text-muted-foreground">
-                  Click "Next" to analyze competitors for "{targetKeyword || productName}"
+            {competitorData && (
+              <div className="p-4 bg-secondary/10 rounded-lg border border-secondary/30">
+                <p className="text-sm text-secondary font-medium">
+                  ✓ Competitor analysis complete! Insights will be used to optimize your article.
                 </p>
-                {competitorInsights.length > 0 && (
-                  <ul className="mt-3 space-y-2">
-                    {competitorInsights.map((insight, i) => (
-                      <li key={i} className="text-sm flex items-start gap-2">
-                        <Check className="h-4 w-4 text-secondary mt-0.5" />
-                        {insight}
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </div>
             )}
           </div>

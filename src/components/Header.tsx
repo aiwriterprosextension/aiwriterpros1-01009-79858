@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown, Sparkles } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import logoColor from "@/assets/logo-color.webp";
+import logoWhite from "@/assets/logo-white.png";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -20,10 +22,18 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <Sparkles className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">AIWriterPros</span>
+          {/* Logo - shows colored in light mode, white in dark mode */}
+          <Link to="/" className="flex items-center">
+            <img 
+              src={logoColor} 
+              alt="AIWriterPros" 
+              className="h-8 md:h-10 dark:hidden" 
+            />
+            <img 
+              src={logoWhite} 
+              alt="AIWriterPros" 
+              className="h-8 md:h-10 hidden dark:block" 
+            />
           </Link>
 
           {/* Desktop Navigation */}
