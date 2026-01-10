@@ -43,7 +43,7 @@ import OTO2 from "./pages/sales/OTO2";
 import OTO2Downsell from "./pages/sales/OTO2Downsell";
 import ThankYou from "./pages/sales/ThankYou";
 import NotFound from "./pages/NotFound";
-
+import ArticleView from "./pages/ArticleView";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -60,6 +60,7 @@ const App = () => (
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/dashboard/wizard" element={<ProtectedRoute><ContentWizard /></ProtectedRoute>} />
               <Route path="/dashboard/articles" element={<ProtectedRoute><MyArticles /></ProtectedRoute>} />
+              <Route path="/dashboard/articles/:id" element={<ProtectedRoute><ArticleView /></ProtectedRoute>} />
               <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
               <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               <Route path="/dashboard/content-library" element={<ProtectedRoute><ContentLibrary /></ProtectedRoute>} />

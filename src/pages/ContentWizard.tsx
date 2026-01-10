@@ -23,10 +23,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { CompetitorInsights, CompetitorData } from "@/components/CompetitorInsights";
 import { useSEOAutoFill } from "@/hooks/useSEOAutoFill";
+import { useArticleGeneration } from "@/hooks/useArticleGeneration";
 import { toast } from "sonner";
 
 const STEPS = [
@@ -65,8 +67,8 @@ const ARTICLE_TYPES = [
 const ContentWizard = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [isGenerating, setIsGenerating] = useState(false);
   const { isLoading: isAutoFilling, generateSEO, seoData } = useSEOAutoFill();
+  const { generateArticle, isGenerating, progress, progressMessage } = useArticleGeneration();
   
   // Step 1: Niche Selection
   const [selectedNiche, setSelectedNiche] = useState("");
@@ -121,13 +123,33 @@ const ContentWizard = () => {
   };
 
   const handleGenerate = async () => {
-    setIsGenerating(true);
-    
-    // Simulate generation (replace with actual API call)
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    toast.success("Article generated successfully!");
-    navigate("/dashboard/articles");
+    const result = await generateArticle({
+      articleType,
+      niche: selectedNiche === "Other" ? customNiche : selectedNiche,
+      productUrl: productUrl || undefined,
+      productName: productName || undefined,
+      productBrand: productBrand || undefined,
+      seoTitle,
+      metaDescription,
+      primaryKeyword,
+      secondaryKeywords,
+      includeFeaturedImage,
+      bodyImageCount: bodyImageCount[0],
+      imageSource,
+      affiliateId: affiliateId || undefined,
+      ctaStyle,
+      ctaPlacement,
+      competitorData: competitorData ? {
+        targetWordCount: competitorData.targetWordCount,
+        contentGaps: competitorData.contentGaps,
+        suggestedHeadings: competitorData.suggestedHeadings,
+      } : undefined,
+    });
+
+    if (result) {
+      toast.success("Article generated successfully!");
+      navigate(`/dashboard/articles/${result.id}`);
+    }
   };
 
   const canProceed = () => {
@@ -501,37 +523,63 @@ const ContentWizard = () => {
       case 7:
         return (
           <div className="space-y-6">
-            <div className="text-center py-8">
-              <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="h-10 w-10 text-primary" />
+            {isGenerating ? (
+              <div className="text-center py-8">
+                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">Generating Your Article</h3>
+                <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                  {progressMessage || "Please wait while we create your SEO-optimized content..."}
+                </p>
+                <div className="max-w-md mx-auto">
+                  <Progress value={progress} className="h-2" />
+                  <p className="text-sm text-muted-foreground mt-2">{progress}% complete</p>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold mb-2">Ready to Generate!</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                We'll create a comprehensive, SEO-optimized article based on your configuration.
-              </p>
-            </div>
+            ) : (
+              <>
+                <div className="text-center py-8">
+                  <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Sparkles className="h-10 w-10 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Ready to Generate!</h3>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    We'll create a comprehensive, SEO-optimized article based on your configuration.
+                  </p>
+                </div>
 
-            <div className="card-elevated p-4 space-y-3">
-              <h4 className="font-semibold">Summary</h4>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Niche:</span>
-                  <p className="font-medium">{selectedNiche}</p>
+                <div className="card-elevated p-4 space-y-3">
+                  <h4 className="font-semibold">Summary</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Niche:</span>
+                      <p className="font-medium">{selectedNiche}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Article Type:</span>
+                      <p className="font-medium">{ARTICLE_TYPES.find(t => t.value === articleType)?.label}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Product:</span>
+                      <p className="font-medium">{productName || "From URL"}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Images:</span>
+                      <p className="font-medium">{includeFeaturedImage ? "Featured + " : ""}{bodyImageCount[0]} body images</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">SEO Title:</span>
+                      <p className="font-medium truncate">{seoTitle || "Not set"}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Affiliate:</span>
+                      <p className="font-medium">{affiliateId || "Not configured"}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-muted-foreground">Article Type:</span>
-                  <p className="font-medium">{ARTICLE_TYPES.find(t => t.value === articleType)?.label}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Product:</span>
-                  <p className="font-medium">{productName || "From URL"}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Images:</span>
-                  <p className="font-medium">{includeFeaturedImage ? "Featured + " : ""}{bodyImageCount[0]} body images</p>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         );
 
