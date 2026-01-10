@@ -231,33 +231,18 @@ const ArticleView = () => {
               />
             </div>
           ) : (
-            <div className="card-elevated">
-              <Tabs defaultValue="preview" className="w-full">
-                <TabsList className="w-full justify-start border-b rounded-none bg-transparent px-4">
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                  <TabsTrigger value="markdown">Markdown</TabsTrigger>
-                  <TabsTrigger value="html">HTML</TabsTrigger>
-                </TabsList>
-                <div className="p-4">
-                  <TabsContent value="preview" className="mt-0">
-                    <ContentViewer
-                      content={article.markdown_content || article.content}
-                      format="markdown"
-                      onContentChange={() => {}}
-                    />
-                  </TabsContent>
-                  <TabsContent value="markdown" className="mt-0">
-                    <pre className="whitespace-pre-wrap text-sm bg-muted/50 p-4 rounded-lg overflow-x-auto max-h-[600px] overflow-y-auto">
-                      {article.markdown_content || article.content}
-                    </pre>
-                  </TabsContent>
-                  <TabsContent value="html" className="mt-0">
-                    <pre className="whitespace-pre-wrap text-sm bg-muted/50 p-4 rounded-lg overflow-x-auto max-h-[600px] overflow-y-auto">
-                      {article.html_content || article.content}
-                    </pre>
-                  </TabsContent>
-                </div>
-              </Tabs>
+          <div className="card-elevated p-4">
+              <ContentViewer
+                content={article.markdown_content || article.content}
+                format="markdown"
+                onContentChange={() => {}}
+                articleTitle={article.title}
+                affiliateConfig={{
+                  affiliateId: (article.configuration as Record<string, unknown>)?.affiliateId as string,
+                  ctaStyle: (article.configuration as Record<string, unknown>)?.ctaStyle as string,
+                  ctaPlacement: (article.configuration as Record<string, unknown>)?.ctaPlacement as string,
+                }}
+              />
             </div>
           )}
 

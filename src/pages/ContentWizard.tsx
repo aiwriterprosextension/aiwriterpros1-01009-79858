@@ -27,6 +27,7 @@ import { Progress } from "@/components/ui/progress";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { CompetitorInsights, CompetitorData } from "@/components/CompetitorInsights";
+import { CompetitorResearchStep } from "@/components/CompetitorResearchStep";
 import { useSEOAutoFill } from "@/hooks/useSEOAutoFill";
 import { useArticleGeneration } from "@/hooks/useArticleGeneration";
 import { toast } from "sonner";
@@ -278,38 +279,16 @@ const ContentWizard = () => {
 
       case 3:
         return (
-          <div className="space-y-6">
-            <div>
-              <Label htmlFor="targetKeyword" className="text-base font-semibold">Target Keyword</Label>
-              <p className="text-sm text-muted-foreground mb-2">Enter the main keyword you want to rank for (or use the product name)</p>
-              <Input
-                id="targetKeyword"
-                placeholder="e.g., best noise cancelling headphones"
-                value={targetKeyword || productName}
-                onChange={(e) => setTargetKeyword(e.target.value)}
-              />
-            </div>
-
-            <CompetitorInsights 
-              keyword={targetKeyword || productName}
-              articleType={articleType}
-              onInsightsReceived={(data) => {
-                setCompetitorData(data);
-                // Auto-fill SEO fields if we got good data
-                if (data.targetWordCount) {
-                  toast.info(`Target word count: ${data.targetWordCount}+ words`);
-                }
-              }}
-            />
-
-            {competitorData && (
-              <div className="p-4 bg-secondary/10 rounded-lg border border-secondary/30">
-                <p className="text-sm text-secondary font-medium">
-                  ✓ Competitor analysis complete! Insights will be used to optimize your article.
-                </p>
-              </div>
-            )}
-          </div>
+          <CompetitorResearchStep
+            targetKeyword={targetKeyword}
+            setTargetKeyword={setTargetKeyword}
+            productName={productName}
+            setProductName={setProductName}
+            selectedNiche={selectedNiche === "Other" ? customNiche : selectedNiche}
+            articleType={articleType}
+            competitorData={competitorData}
+            setCompetitorData={setCompetitorData}
+          />
         );
 
       case 4:
