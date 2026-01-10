@@ -19,8 +19,24 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
+    // Calculate minimum word count from competitor data
+    const targetWordCount = configuration.wordCount || 3500;
+    const competitorWordCount = configuration.competitorData?.targetWordCount || 3500;
+    const longestCompetitor = configuration.competitorData?.longestCompetitor || 3500;
+    const minimumRequired = Math.max(targetWordCount, competitorWordCount, Math.ceil(longestCompetitor * 1.25), 3500);
+
+    console.log(`Generating Amazon review, minimum words: ${minimumRequired}`);
+
     // Build the comprehensive prompt based on the user's configuration
     const systemPrompt = `You are an elite Amazon affiliate SEO specialist and product reviewer with 10+ years of experience. Your mission: Create comprehensive, deeply researched product reviews that rank #1 on Google, provide genuine value to readers, and convert browsers into confident buyers.
+
+═══════════════════════════════════════════════════════════
+🚨 CRITICAL WORD COUNT REQUIREMENT 🚨
+MANDATORY MINIMUM: ${minimumRequired} WORDS
+This is NON-NEGOTIABLE. Your article MUST contain at least ${minimumRequired} words.
+Top ranking competitors have approximately ${competitorWordCount} words.
+IF YOUR ARTICLE IS UNDER ${minimumRequired} WORDS, YOU HAVE FAILED THIS TASK.
+═══════════════════════════════════════════════════════════
 
 CORE EXPERTISE:
 - SEO optimization for product review keywords
@@ -42,7 +58,7 @@ WRITING STANDARDS:
 PRODUCT URL: ${productUrl}
 
 CONFIGURATION:
-- Target word count: ${configuration.wordCount || 3000} words (must hit ±5%)
+- Target word count: ${minimumRequired} words (MINIMUM - must reach this count)
 - Tone: ${configuration.tone || 'Balanced & Authoritative'}
 - Reading level: ${configuration.readingLevel || '8th Grade'} (Flesch-Kincaid)
 - Primary keyword: ${configuration.primaryKeyword || 'product review'}

@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, Loader2, CheckCircle, Target, FileText, Lightbulb } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { TrendingUp, Loader2, CheckCircle, Target, FileText, Lightbulb, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -18,6 +20,21 @@ export interface CompetitorData {
   contentGaps: string[];
   targetWordCount: number;
   suggestedHeadings: string[];
+  longestCompetitor?: number;
+  shortestCompetitor?: number;
+  averageCompetitor?: number;
+  recommendedArticleType?: string;
+  articleTypeReason?: string;
+  detailedCompetitors?: Array<{
+    position: number;
+    estimatedTitle: string;
+    estimatedWordCount: number;
+    articleType: string;
+    headingCount: number;
+    keyStrengths: string[];
+    weaknesses: string[];
+    topicsCovered: string[];
+  }>;
 }
 
 export const CompetitorInsights = ({ keyword, articleType, onInsightsReceived }: CompetitorInsightsProps) => {
@@ -47,6 +64,12 @@ export const CompetitorInsights = ({ keyword, articleType, onInsightsReceived }:
         contentGaps: data.contentGaps || [],
         targetWordCount: data.targetWordCount || 3500,
         suggestedHeadings: data.suggestedHeadings || [],
+        longestCompetitor: data.longestCompetitor || 3500,
+        shortestCompetitor: data.shortestCompetitor || 3500,
+        averageCompetitor: data.averageCompetitor || 3500,
+        recommendedArticleType: data.recommendedArticleType,
+        articleTypeReason: data.articleTypeReason,
+        detailedCompetitors: data.detailedCompetitors || [],
       };
 
       setInsights(insightsData);
@@ -57,7 +80,6 @@ export const CompetitorInsights = ({ keyword, articleType, onInsightsReceived }:
       console.error("Competitor analysis error:", errorMessage);
       toast.error("Failed to analyze competitors. Using default recommendations.");
       
-      // Set fallback data
       const fallbackData: CompetitorData = {
         recommendations: [
           "Focus on comprehensive, in-depth content",
@@ -69,6 +91,9 @@ export const CompetitorInsights = ({ keyword, articleType, onInsightsReceived }:
         contentGaps: [],
         targetWordCount: 3500,
         suggestedHeadings: [],
+        longestCompetitor: 3500,
+        shortestCompetitor: 3500,
+        averageCompetitor: 3500,
       };
       setInsights(fallbackData);
       onInsightsReceived?.(fallbackData);
@@ -76,6 +101,10 @@ export const CompetitorInsights = ({ keyword, articleType, onInsightsReceived }:
       setIsLoading(false);
     }
   };
+
+  const longestCompetitor = insights?.longestCompetitor || 3500;
+  const shortestCompetitor = insights?.shortestCompetitor || 3500;
+  const targetWordCount = insights?.targetWordCount || 3500;
 
   return (
     <Card>
@@ -85,7 +114,7 @@ export const CompetitorInsights = ({ keyword, articleType, onInsightsReceived }:
           Competitor Analysis
         </CardTitle>
         <CardDescription>
-          Analyze top-ranking content to identify opportunities
+          Analyze top-ranking content to identify opportunities and set word count targets
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -113,16 +142,58 @@ export const CompetitorInsights = ({ keyword, articleType, onInsightsReceived }:
 
         {insights && (
           <div className="space-y-4 pt-4 border-t">
-            {/* Target Word Count */}
-            <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg">
-              <Target className="h-5 w-5 text-primary" />
-              <div>
-                <p className="font-semibold">Target Word Count</p>
-                <p className="text-sm text-muted-foreground">
-                  Aim for {insights.targetWordCount.toLocaleString()}+ words to compete
-                </p>
+            {/* Word Count Strategy Card */}
+            <Alert className="bg-primary/5 border-primary/20">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              <AlertDescription>
+                <div className="grid grid-cols-3 gap-4 mt-2">
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground">Shortest</p>
+                    <p className="text-lg font-bold text-orange-600">{shortestCompetitor.toLocaleString()}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground">Longest</p>
+                    <p className="text-lg font-bold text-orange-600">{longestCompetitor.toLocaleString()}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs font-semibold text-primary">Your Target</p>
+                    <p className="text-xl font-bold text-primary">{targetWordCount.toLocaleString()}+</p>
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+
+            {/* Recommended Article Type */}
+            {insights.recommendedArticleType && (
+              <div className="p-3 bg-secondary/10 rounded-lg">
+                <p className="text-sm font-semibold mb-1">Recommended Article Type:</p>
+                <Badge variant="default" className="mb-2">
+                  {insights.recommendedArticleType.replace(/-/g, ' ').toUpperCase()}
+                </Badge>
+                {insights.articleTypeReason && (
+                  <p className="text-xs text-muted-foreground">{insights.articleTypeReason}</p>
+                )}
               </div>
-            </div>
+            )}
+
+            {/* Detailed Competitors */}
+            {insights.detailedCompetitors && insights.detailedCompetitors.length > 0 && (
+              <div className="grid gap-2">
+                {insights.detailedCompetitors.slice(0, 3).map((comp, i) => (
+                  <div key={i} className="p-3 bg-muted/50 rounded-lg">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <Badge variant={i === 0 ? "default" : "secondary"} className="mb-1">
+                          Position {comp.position}
+                        </Badge>
+                        <p className="text-sm font-medium line-clamp-1">{comp.estimatedTitle}</p>
+                      </div>
+                      <span className="text-sm font-bold">{comp.estimatedWordCount.toLocaleString()} words</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Recommendations */}
             {insights.recommendations.length > 0 && (
