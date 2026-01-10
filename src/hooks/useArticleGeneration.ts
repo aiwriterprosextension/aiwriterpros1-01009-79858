@@ -32,11 +32,17 @@ interface ArticleConfiguration {
   tone?: string;
   readingLevel?: string;
   
-  // Competitor data
+  // Enhanced competitor data
   competitorData?: {
     targetWordCount?: number;
+    longestCompetitor?: number;
+    shortestCompetitor?: number;
+    averageCompetitor?: number;
+    recommendedArticleType?: string;
+    articleTypeReason?: string;
     contentGaps?: string[];
     suggestedHeadings?: string[];
+    recommendations?: string[];
   };
 }
 
@@ -81,9 +87,21 @@ export function useArticleGeneration() {
       setProgress(20);
       setProgressMessage("Connecting to AI engine...");
 
+      // Enhanced word count calculation
+      const calculatedWordCount = Math.max(
+        config.wordCount || 3500,
+        config.competitorData?.targetWordCount || 3500,
+        config.competitorData?.longestCompetitor 
+          ? Math.ceil(config.competitorData.longestCompetitor * 1.25) 
+          : 3500,
+        3500 // Absolute minimum floor
+      );
+
+      console.log('Enforcing minimum word count:', calculatedWordCount);
+
       // Build configuration for edge function
       const edgeConfig = {
-        wordCount: config.wordCount || (config.competitorData?.targetWordCount || 3000),
+        wordCount: calculatedWordCount,
         tone: config.tone || "Balanced & Authoritative",
         readingLevel: config.readingLevel || "8th Grade",
         primaryKeyword: config.primaryKeyword,
@@ -92,7 +110,7 @@ export function useArticleGeneration() {
         schemaType: "Product + Review",
         includeComparison: true,
         includeFaq: true,
-        faqCount: 15,
+        faqCount: 20,
         analyzeReviews: true,
         imageCount: config.bodyImageCount,
         imageFormat: "WebP",
@@ -100,13 +118,22 @@ export function useArticleGeneration() {
         amazonAffiliateId: config.affiliateId || "",
         ctaCount: config.ctaPlacement === "after-sections" ? 6 : 2,
         ctaStyle: config.ctaStyle,
-        // Add competitor insights if available
+        // Enhanced competitor data
+        competitorData: {
+          targetWordCount: config.competitorData?.targetWordCount || 3500,
+          longestCompetitor: config.competitorData?.longestCompetitor || 3500,
+          shortestCompetitor: config.competitorData?.shortestCompetitor || 3500,
+          recommendedArticleType: config.competitorData?.recommendedArticleType,
+          contentGaps: config.competitorData?.contentGaps || [],
+          suggestedHeadings: config.competitorData?.suggestedHeadings || [],
+          recommendations: config.competitorData?.recommendations || [],
+        },
         contentGaps: config.competitorData?.contentGaps || [],
         suggestedHeadings: config.competitorData?.suggestedHeadings || [],
       };
 
       setProgress(30);
-      setProgressMessage("Generating article content...");
+      setProgressMessage(`Generating ${calculatedWordCount.toLocaleString()}+ word article...`);
 
       // Call the appropriate edge function
       const requestBody = config.articleType === "amazon-review" 
@@ -130,6 +157,7 @@ export function useArticleGeneration() {
       setProgressMessage("Processing generated content...");
 
       const generatedContent = data.content;
+      const actualWordCount = generatedContent.split(/\s+/).length;
 
       // Extract title from generated content (usually first H1)
       const titleMatch = generatedContent.match(/^#\s+(.+)$/m);
@@ -144,7 +172,7 @@ export function useArticleGeneration() {
         title: config.seoTitle || extractedTitle,
         content: generatedContent,
         markdown_content: generatedContent,
-        html_content: generatedContent, // Will be converted by the viewer
+        html_content: generatedContent,
         article_type: config.articleType,
         product_url: config.productUrl || null,
         affiliate_enabled: !!config.affiliateId,
@@ -164,17 +192,19 @@ export function useArticleGeneration() {
           imageSource: config.imageSource,
           ctaStyle: config.ctaStyle,
           ctaPlacement: config.ctaPlacement,
-          wordCount: edgeConfig.wordCount,
+          wordCount: calculatedWordCount,
+          actualWordCount: actualWordCount,
           tone: edgeConfig.tone,
           readingLevel: edgeConfig.readingLevel,
+          competitorData: config.competitorData,
         },
         seo_score: {
-          score: 85, // Initial estimated score
+          score: 85,
           titleLength: config.seoTitle.length,
           metaDescriptionLength: config.metaDescription.length,
           primaryKeywordPresent: generatedContent.toLowerCase().includes(config.primaryKeyword.toLowerCase()),
         },
-        word_count: generatedContent.split(/\s+/).length,
+        word_count: actualWordCount,
       };
 
       const { data: savedArticle, error: saveError } = await supabase
@@ -194,11 +224,10 @@ export function useArticleGeneration() {
       // Generate images if AI source selected
       if (config.imageSource === "ai" && config.bodyImageCount > 0) {
         setProgressMessage("Generating images (background)...");
-        // Start image generation in background - don't wait for it
         supabase.functions.invoke("generate-article-images", {
           body: {
             articleId: savedArticle.id,
-            articleContent: generatedContent.substring(0, 2000), // First 2000 chars for context
+            articleContent: generatedContent.substring(0, 2000),
             imageCount: config.bodyImageCount,
             includeFeatured: config.includeFeaturedImage,
           },
@@ -206,7 +235,7 @@ export function useArticleGeneration() {
       }
 
       setProgress(100);
-      setProgressMessage("Article generated successfully!");
+      setProgressMessage(`Article generated successfully! (${actualWordCount.toLocaleString()} words)`);
 
       return {
         id: savedArticle.id,

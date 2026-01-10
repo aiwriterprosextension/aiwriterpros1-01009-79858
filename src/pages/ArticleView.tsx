@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Edit2, Download, Copy, Check, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardSidebar from "@/components/DashboardSidebar";
@@ -178,10 +179,17 @@ const ArticleView = () => {
               </Button>
               <div>
                 <h1 className="text-xl md:text-2xl font-bold line-clamp-1">{article.title}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {article.word_count?.toLocaleString() || 0} words • 
-                  Created {new Date(article.created_at).toLocaleDateString()}
-                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge 
+                    variant={(article.word_count || 0) >= 3000 ? "default" : "destructive"}
+                    className="text-xs"
+                  >
+                    {(article.word_count || 0).toLocaleString()} words
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    Created {new Date(article.created_at).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             </div>
             <div className="flex gap-2">
