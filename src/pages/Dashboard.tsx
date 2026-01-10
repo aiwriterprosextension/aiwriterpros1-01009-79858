@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { FileText, TrendingUp, Plus, BookOpen, Loader2 } from "lucide-react";
+import { FileText, TrendingUp, Plus, BookOpen, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import { PieChart, Pie, Cell, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -114,12 +114,18 @@ const Dashboard = () => {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="mb-6 md:mb-8">
+          {/* CTA Buttons */}
+          <div className="mb-6 md:mb-8 flex flex-col sm:flex-row gap-3">
+            <Link to="/dashboard/wizard">
+              <Button size="lg" className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 w-full sm:w-auto">
+                <Sparkles className="h-5 w-5 mr-2" />
+                Start Content Wizard
+              </Button>
+            </Link>
             <Link to="/dashboard/create/amazon-review">
-              <Button size="lg" className="btn-hero w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 <Plus className="h-5 w-5 mr-2" />
-                Create Your First Article
+                Quick Create Article
               </Button>
             </Link>
           </div>
