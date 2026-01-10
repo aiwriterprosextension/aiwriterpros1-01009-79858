@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Plus, FileText, BarChart3, Settings, Sparkles, ChevronDown, ArrowUpCircle, LogOut, Menu, X } from "lucide-react";
+import { Home, Plus, FileText, BarChart3, Settings, Sparkles, ChevronDown, ArrowUpCircle, LogOut, Menu, X, Wand2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -59,6 +59,20 @@ const DashboardSidebar = () => {
 
       {/* Navigation */}
       <nav className="flex-1 p-3 md:p-4 space-y-1 md:space-y-2 overflow-y-auto">
+        {/* Wizard - Prominent CTA */}
+        <Link
+          to="/dashboard/wizard"
+          onClick={handleNavClick}
+          className={`flex items-center space-x-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg transition-colors mb-2 ${
+            isActive("/dashboard/wizard")
+              ? "bg-gradient-to-r from-primary to-secondary text-white font-semibold"
+              : "bg-gradient-to-r from-primary/10 to-secondary/10 text-primary hover:from-primary/20 hover:to-secondary/20 font-semibold"
+          }`}
+        >
+          <Wand2 className="h-5 w-5" />
+          <span className="text-sm md:text-base">Content Wizard</span>
+        </Link>
+
         <Link
           to="/dashboard"
           onClick={handleNavClick}
