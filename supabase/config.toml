@@ -1,10 +1,28 @@
 project_id = "watgetvpsnnxbugjvhvj"
 
 [functions.generate-seo-metadata]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-amazon-product]
-verify_jwt = true
+verify_jwt = false
 
 [functions.optimize-images]
-verify_jwt = true
+verify_jwt = false
+
+[functions.generate-amazon-review]
+verify_jwt = false
+
+[functions.generate-buying-guide]
+verify_jwt = false
+
+[functions.generate-how-to-article]
+verify_jwt = false
+
+[functions.generate-product-comparison]
+verify_jwt = false
+
+[functions.generate-product-roundup]
+verify_jwt = false
+
+[functions.analyze-competitors]
+verify_jwt = false

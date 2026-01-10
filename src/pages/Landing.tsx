@@ -1,17 +1,48 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowRight, CheckCircle, Star, TrendingUp, Target, Zap, FileText, BarChart, Code, Users } from "lucide-react";
+import { ArrowRight, CheckCircle, Star, TrendingUp, Target, Zap, FileText, BarChart, Code, Users, Play, X, Clock, Award, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { SocialProofNotification } from "@/components/SocialProofNotification";
 import { EmailCaptureCTA } from "@/components/EmailCaptureCTA";
+import { useEffect, useState } from "react";
+
+// Animated counter hook
+const useAnimatedCounter = (end: number, duration: number = 2000) => {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    let startTime: number;
+    let animationFrame: number;
+    
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      setCount(Math.floor(progress * end));
+      
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+    
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [end, duration]);
+  
+  return count;
+};
 
 const Landing = () => {
   const scrollToFeatures = () => {
     document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
   };
+  
+  // Animated stats
+  const articlesGenerated = useAnimatedCounter(15847);
+  const usersCount = useAnimatedCounter(2341);
+  const avgRankingDays = useAnimatedCounter(28);
 
   return (
     <>
@@ -21,11 +52,11 @@ const Landing = () => {
           name="description" 
           content="Create comprehensive, SEO-optimized Amazon reviews, buying guides, and comparison articles that rank on Google. AI-powered content generation built by SEO experts. Start free." 
         />
-        <link rel="canonical" href="https://aiwriterpros.lovable.app/" />
+        <link rel="canonical" href="https://aiwriterpros.com/" />
         <meta property="og:title" content="AIWriterPros | AI-Powered SEO Content Generator" />
         <meta property="og:description" content="Create comprehensive, SEO-optimized Amazon reviews, buying guides, and comparison articles that rank on Google." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://aiwriterpros.lovable.app/" />
+        <meta property="og:url" content="https://aiwriterpros.com/" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="AIWriterPros | AI-Powered SEO Content Generator" />
         <meta name="twitter:description" content="Create comprehensive, SEO-optimized Amazon reviews, buying guides, and comparison articles that rank on Google." />
@@ -40,6 +71,11 @@ const Landing = () => {
       <section className="gradient-hero text-white py-20 md:py-32">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+              <Award className="h-4 w-4" />
+              <span className="text-sm font-medium">Rated #1 AI Content Tool for Affiliates</span>
+            </div>
+            
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               Create SEO-Dominating Content That Ranks #1 on Google
             </h1>
@@ -49,9 +85,9 @@ const Landing = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Link to="/auth">
+              <Link to="/sales">
                 <Button size="lg" className="btn-hero w-full sm:w-auto">
-                  Start Creating Free <ArrowRight className="ml-2 h-5 w-5" />
+                  Get Instant Access <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Button 
@@ -67,16 +103,117 @@ const Landing = () => {
             <div className="flex flex-wrap justify-center gap-6 text-sm text-white/80">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5" />
-                <span>No Credit Card</span>
+                <span>No Credit Card Required</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5" />
-                <span>5,000+ Articles Generated</span>
+                <Shield className="h-5 w-5" />
+                <span>30-Day Money Back</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5" />
-                <span>Avg 30-Day Ranking</span>
+                <Clock className="h-5 w-5" />
+                <span>Articles in Minutes</span>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Animated Stats Bar */}
+      <section className="py-8 bg-card border-y border-border">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
+            <div>
+              <p className="text-3xl md:text-4xl font-bold text-primary">{articlesGenerated.toLocaleString()}+</p>
+              <p className="text-sm text-muted-foreground">Articles Generated</p>
+            </div>
+            <div>
+              <p className="text-3xl md:text-4xl font-bold text-secondary">{usersCount.toLocaleString()}+</p>
+              <p className="text-sm text-muted-foreground">Active Users</p>
+            </div>
+            <div>
+              <p className="text-3xl md:text-4xl font-bold text-accent">{avgRankingDays}</p>
+              <p className="text-sm text-muted-foreground">Avg Days to Rank</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Video Demo Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">See AIWriterPros in Action</h2>
+            <p className="text-muted-foreground text-lg">Watch how easy it is to generate ranking content in minutes</p>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl overflow-hidden border border-border">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform group">
+                  <Play className="h-8 w-8 text-primary ml-1 group-hover:text-secondary transition-colors" />
+                </button>
+              </div>
+              <div className="absolute bottom-4 left-4 right-4">
+                <div className="bg-background/80 backdrop-blur-sm rounded-lg p-4">
+                  <p className="font-semibold">Product Demo: Create a Complete Amazon Review in 2 Minutes</p>
+                  <p className="text-sm text-muted-foreground">Duration: 3:42</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Old Way vs New Way Comparison */}
+      <section className="py-16 bg-muted">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">The Old Way vs. The AIWriterPros Way</h2>
+          
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Old Way */}
+            <div className="card-elevated p-6 border-destructive/30 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-destructive/10 px-4 py-2 rounded-bl-lg">
+                <span className="text-destructive font-semibold text-sm">OLD WAY</span>
+              </div>
+              <h3 className="text-xl font-bold mb-4 mt-4 text-destructive">Manual Content Creation</h3>
+              <ul className="space-y-3">
+                {[
+                  "Hours of research per article",
+                  "Inconsistent SEO optimization",
+                  "Manual keyword research",
+                  "Guessing what competitors rank for",
+                  "No schema markup expertise",
+                  "Limited output capacity"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2 text-muted-foreground">
+                    <X className="h-5 w-5 text-destructive flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* New Way */}
+            <div className="card-elevated p-6 border-secondary/30 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-secondary/10 px-4 py-2 rounded-bl-lg">
+                <span className="text-secondary font-semibold text-sm">NEW WAY</span>
+              </div>
+              <h3 className="text-xl font-bold mb-4 mt-4 text-secondary">AIWriterPros Automation</h3>
+              <ul className="space-y-3">
+                {[
+                  "Complete articles in minutes",
+                  "Built-in SEO best practices",
+                  "AI-powered keyword research",
+                  "Automatic competitor analysis",
+                  "Schema markup included",
+                  "Unlimited scaling potential"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>

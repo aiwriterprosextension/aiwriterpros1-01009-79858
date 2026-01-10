@@ -25,6 +25,7 @@ import BuyingGuidesPage from "./pages/article-types/BuyingGuides";
 import HowToArticlesPage from "./pages/article-types/HowToArticles";
 import ProductRoundupsPage from "./pages/article-types/ProductRoundups";
 import AffiliateResources from "./pages/AffiliateResources";
+import Install from "./pages/Install";
 import AboutPage from "./pages/About";
 import PricingPage from "./pages/Pricing";
 import ContactPage from "./pages/Contact";
@@ -88,6 +89,7 @@ const App = () => (
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/affiliate-resources" element={<AffiliateResources />} />
+            <Route path="/install" element={<Install />} />
             
             {/* Legal Pages */}
             <Route path="/privacy" element={<PrivacyPage />} />
