@@ -12,6 +12,7 @@ import MyArticles from "./pages/MyArticles";
 import Analytics from "./pages/Analytics";
 import SettingsPage from "./pages/Settings";
 import ContentLibrary from "./pages/ContentLibrary";
+import ContentWizard from "./pages/ContentWizard";
 import AmazonReviewGenerator from "./pages/AmazonReviewGenerator";
 import BuyingGuideGenerator from "./pages/BuyingGuideGenerator";
 import ProductRoundupGenerator from "./pages/ProductRoundupGenerator";
@@ -23,6 +24,7 @@ import ProductComparisonsPage from "./pages/article-types/ProductComparisons";
 import BuyingGuidesPage from "./pages/article-types/BuyingGuides";
 import HowToArticlesPage from "./pages/article-types/HowToArticles";
 import ProductRoundupsPage from "./pages/article-types/ProductRoundups";
+import AffiliateResources from "./pages/AffiliateResources";
 import AboutPage from "./pages/About";
 import PricingPage from "./pages/Pricing";
 import ContactPage from "./pages/Contact";
@@ -55,6 +57,7 @@ const App = () => (
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/dashboard/wizard" element={<ProtectedRoute><ContentWizard /></ProtectedRoute>} />
               <Route path="/dashboard/articles" element={<ProtectedRoute><MyArticles /></ProtectedRoute>} />
               <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
               <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
@@ -84,6 +87,7 @@ const App = () => (
             <Route path="/about" element={<AboutPage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/affiliate-resources" element={<AffiliateResources />} />
             
             {/* Legal Pages */}
             <Route path="/privacy" element={<PrivacyPage />} />

@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { SocialProofNotification } from "@/components/SocialProofNotification";
+import { EmailCaptureCTA } from "@/components/EmailCaptureCTA";
 
 const Landing = () => {
   const scrollToFeatures = () => {
@@ -367,14 +368,15 @@ const Landing = () => {
           <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto">
             Join thousands of content creators using AI to dominate search results
           </p>
-          <Link to="/dashboard">
+          <Link to="/sales">
             <Button size="lg" className="btn-hero">
-              Start Creating Free <ArrowRight className="ml-2 h-5 w-5" />
+              Get Started Now <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
         </div>
       </section>
 
+        <EmailCaptureCTA />
         <Footer />
       </div>
     </>
