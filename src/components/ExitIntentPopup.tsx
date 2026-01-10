@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Gift, Loader2, Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ExitIntentConfig {
   enabled: boolean;
@@ -103,12 +104,38 @@ export const ExitIntentPopup = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call (replace with actual Supabase insert)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast.success('Check your email for the download link!');
+    try {
+      // Insert email into email_subscribers table
+      const { error } = await supabase
+        .from('email_subscribers')
+        .insert({
+          email: email.toLowerCase().trim(),
+          source: 'exit_intent',
+          metadata: {
+            lead_magnet: config?.lead_magnet || 'SEO Template Pack',
+            page: window.location.pathname,
+          },
+        });
+
+      if (error) {
+        // Check if it's a duplicate email error
+        if (error.code === '23505') {
+          toast.info("You're already subscribed! Check your email for the download.");
+          setIsSubmitted(true);
+        } else {
+          console.error('Email subscription error:', error);
+          toast.error('Something went wrong. Please try again.');
+        }
+      } else {
+        setIsSubmitted(true);
+        toast.success('Check your email for the download link!');
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!config || !config.enabled) return null;

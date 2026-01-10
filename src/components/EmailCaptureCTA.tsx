@@ -25,12 +25,35 @@ export function EmailCaptureCTA({ variant = "default" }: EmailCaptureCTAProps) {
     setIsLoading(true);
 
     try {
-      // For now, just show success - database table needs to be created
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setIsSuccess(true);
-      toast.success("Success! Check your email for the download link.");
+      // Insert email into email_subscribers table
+      const { error } = await supabase
+        .from("email_subscribers")
+        .insert({
+          email: email.toLowerCase().trim(),
+          source: "footer_cta",
+          metadata: {
+            lead_magnet: "SEO Content Checklist",
+            page: window.location.pathname,
+          },
+        });
+
+      if (error) {
+        // Check if it's a duplicate email error
+        if (error.code === "23505") {
+          toast.info("You're already subscribed! Check your email for the download.");
+          setIsSuccess(true);
+        } else {
+          console.error("Email subscription error:", error);
+          toast.error("Something went wrong. Please try again.");
+        }
+      } else {
+        setIsSuccess(true);
+        toast.success("Success! Check your email for the download link.");
+      }
+      
       setEmail("");
     } catch (error) {
+      console.error("Subscription error:", error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);

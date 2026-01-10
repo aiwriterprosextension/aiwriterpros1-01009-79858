@@ -26,6 +26,7 @@ import { Slider } from "@/components/ui/slider";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { CompetitorInsights, CompetitorData } from "@/components/CompetitorInsights";
+import { useSEOAutoFill } from "@/hooks/useSEOAutoFill";
 import { toast } from "sonner";
 
 const STEPS = [
@@ -65,7 +66,7 @@ const ContentWizard = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isAutoFilling, setIsAutoFilling] = useState(false);
+  const { isLoading: isAutoFilling, generateSEO, seoData } = useSEOAutoFill();
   
   // Step 1: Niche Selection
   const [selectedNiche, setSelectedNiche] = useState("");
@@ -86,6 +87,7 @@ const ContentWizard = () => {
   const [metaDescription, setMetaDescription] = useState("");
   const [primaryKeyword, setPrimaryKeyword] = useState("");
   const [secondaryKeywords, setSecondaryKeywords] = useState("");
+  const [titleOptions, setTitleOptions] = useState<Array<{ type: string; text: string }>>([]);
   
   // Step 5: Image Setup
   const [includeFeaturedImage, setIncludeFeaturedImage] = useState(true);
@@ -103,19 +105,19 @@ const ContentWizard = () => {
       return;
     }
     
-    setIsAutoFilling(true);
+    const topic = targetKeyword || productName;
+    const result = await generateSEO(topic, articleType, productName);
     
-    // Simulate AI auto-fill (replace with actual API call)
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const keyword = targetKeyword || productName;
-    setSeoTitle(`Best ${keyword} Review 2024: Complete Buyer's Guide`);
-    setMetaDescription(`Looking for the best ${keyword}? Our comprehensive review covers features, pros & cons, and helps you decide if it's right for you.`);
-    setPrimaryKeyword(keyword.toLowerCase());
-    setSecondaryKeywords(`${keyword} review, best ${keyword}, ${keyword} guide, ${keyword} comparison`);
-    
-    setIsAutoFilling(false);
-    toast.success("SEO fields auto-filled with AI suggestions!");
+    if (result) {
+      // Use the first title as default
+      if (result.titles && result.titles.length > 0) {
+        setSeoTitle(result.titles[0].text);
+        setTitleOptions(result.titles);
+      }
+      setMetaDescription(result.metaDescription);
+      setPrimaryKeyword(result.primaryKeyword);
+      setSecondaryKeywords(result.secondaryKeywords.join(", "));
+    }
   };
 
   const handleGenerate = async () => {
@@ -306,6 +308,32 @@ const ContentWizard = () => {
               </Button>
             </div>
 
+            {/* Title Options from AI */}
+            {titleOptions.length > 0 && (
+              <div>
+                <Label className="text-base font-semibold mb-3 block">AI-Generated Title Options</Label>
+                <div className="space-y-2">
+                  {titleOptions.map((option, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSeoTitle(option.text)}
+                      className={`w-full text-left p-3 rounded-lg border transition-all ${
+                        seoTitle === option.text
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <span className="text-xs uppercase text-muted-foreground font-medium">
+                        {option.type.replace("-", " ")}
+                      </span>
+                      <p className="text-sm mt-1">{option.text}</p>
+                      <span className="text-xs text-muted-foreground">{option.text.length} chars</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div>
               <Label htmlFor="seoTitle">SEO Title</Label>
               <p className="text-sm text-muted-foreground mb-2">50-60 characters recommended</p>
@@ -316,7 +344,9 @@ const ContentWizard = () => {
                 onChange={(e) => setSeoTitle(e.target.value)}
                 maxLength={70}
               />
-              <p className="text-xs text-muted-foreground mt-1">{seoTitle.length}/60 characters</p>
+              <p className={`text-xs mt-1 ${seoTitle.length >= 50 && seoTitle.length <= 60 ? "text-secondary" : "text-muted-foreground"}`}>
+                {seoTitle.length}/60 characters {seoTitle.length >= 50 && seoTitle.length <= 60 && "✓ Optimal"}
+              </p>
             </div>
 
             <div>
@@ -330,7 +360,9 @@ const ContentWizard = () => {
                 maxLength={170}
                 rows={3}
               />
-              <p className="text-xs text-muted-foreground mt-1">{metaDescription.length}/160 characters</p>
+              <p className={`text-xs mt-1 ${metaDescription.length >= 150 && metaDescription.length <= 160 ? "text-secondary" : "text-muted-foreground"}`}>
+                {metaDescription.length}/160 characters {metaDescription.length >= 150 && metaDescription.length <= 160 && "✓ Optimal"}
+              </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
