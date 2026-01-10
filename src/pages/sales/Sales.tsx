@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
+import logoWhite from "@/assets/logo-white.png";
 
 const Sales = () => {
   const navigate = useNavigate();
@@ -84,9 +85,14 @@ const Sales = () => {
         {/* Sticky Header */}
         <header className="sticky top-0 z-50 bg-gradient-to-r from-[#1a1a2e] to-[#16213e] border-b border-purple-500/20 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-pink-400 font-medium text-sm">🎉 Founding Members Discount Active</span>
-              <span className="text-gray-400 text-sm">Price Increases Soon.</span>
+            <div className="flex items-center gap-4">
+              <Link to="/">
+                <img src={logoWhite} alt="AIWriterPros" className="h-8" />
+              </Link>
+              <div className="hidden md:flex items-center gap-2">
+                <span className="text-pink-400 font-medium text-sm">🎉 Founding Members Discount Active</span>
+                <span className="text-gray-400 text-sm">Price Increases Soon.</span>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-white">
@@ -123,6 +129,11 @@ const Sales = () => {
           
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
+              {/* Hero Logo */}
+              <div className="mb-8">
+                <img src={logoWhite} alt="AIWriterPros" className="h-14 md:h-20 mx-auto" />
+              </div>
+              
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500/20 to-purple-500/20 px-6 py-2 rounded-full border border-pink-500/30 mb-6">
                 <span className="text-pink-400">💎</span>
                 <span className="text-pink-300">Finally, AI Content That Actually Ranks on Google</span>

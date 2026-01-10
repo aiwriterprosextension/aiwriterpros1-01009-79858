@@ -1,7 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { CheckCircle, X, Zap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoWhite from "@/assets/logo-white.png";
 
 const OTO1 = () => {
   const navigate = useNavigate();
@@ -28,6 +29,13 @@ const OTO1 = () => {
         </div>
 
         <div className="container mx-auto px-4 py-16 max-w-4xl">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <Link to="/">
+              <img src={logoWhite} alt="AIWriterPros" className="h-10 mx-auto" />
+            </Link>
+          </div>
+          
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Unlock <span className="text-pink-400">UNLIMITED</span> Article Generation

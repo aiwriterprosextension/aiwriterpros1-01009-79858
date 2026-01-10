@@ -8,6 +8,7 @@ import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import { SocialProofNotification } from "@/components/SocialProofNotification";
 import { EmailCaptureCTA } from "@/components/EmailCaptureCTA";
 import { useEffect, useState } from "react";
+import logoWhite from "@/assets/logo-white.png";
 
 // Animated counter hook
 const useAnimatedCounter = (end: number, duration: number = 2000) => {
@@ -71,6 +72,15 @@ const Landing = () => {
       <section className="gradient-hero text-white py-20 md:py-32">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
+            {/* Logo in Hero */}
+            <div className="mb-8">
+              <img 
+                src={logoWhite} 
+                alt="AIWriterPros" 
+                className="h-12 md:h-16 mx-auto" 
+              />
+            </div>
+            
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
               <Award className="h-4 w-4" />
               <span className="text-sm font-medium">Rated #1 AI Content Tool for Affiliates</span>
