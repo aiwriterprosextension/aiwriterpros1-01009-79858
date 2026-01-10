@@ -121,6 +121,21 @@ const Footer = () => {
                   Disclaimer
                 </Link>
               </li>
+              <li>
+                <Link to="/refund-policy" className="text-sm hover:text-white transition-colors">
+                  Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/dmca" className="text-sm hover:text-white transition-colors">
+                  DMCA
+                </Link>
+              </li>
+              <li>
+                <Link to="/affiliate-disclosure" className="text-sm hover:text-white transition-colors">
+                  Affiliate Disclosure
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
