@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
@@ -30,6 +30,8 @@ import { CompetitorInsights, CompetitorData } from "@/components/CompetitorInsig
 import { CompetitorResearchStep } from "@/components/CompetitorResearchStep";
 import { useSEOAutoFill } from "@/hooks/useSEOAutoFill";
 import { useArticleGeneration } from "@/hooks/useArticleGeneration";
+import { useAmazonProductData } from "@/hooks/useAmazonProductData";
+import { isValidAmazonURL } from "@/utils/amazonScraper";
 import { toast } from "sonner";
 
 const STEPS = [
@@ -70,6 +72,7 @@ const ContentWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const { isLoading: isAutoFilling, generateSEO, seoData } = useSEOAutoFill();
   const { generateArticle, isGenerating, progress, progressMessage } = useArticleGeneration();
+  const { productData, isLoading: isScrapingProduct, error: scrapeError, scraped, fetchProductData } = useAmazonProductData();
   
   // Step 1: Niche Selection
   const [selectedNiche, setSelectedNiche] = useState("");
@@ -102,6 +105,42 @@ const ContentWizard = () => {
   const [ctaStyle, setCtaStyle] = useState("button");
   const [ctaPlacement, setCtaPlacement] = useState("after-sections");
 
+  // Auto-scrape Amazon product when URL changes
+  useEffect(() => {
+    if (productUrl && isValidAmazonURL(productUrl)) {
+      const timer = setTimeout(() => {
+        fetchProductData(productUrl, productName).then((data) => {
+          if (data) {
+            // Auto-fill product name and brand from scraped data
+            if (data.productTitle && !productName) {
+              setProductName(data.productTitle);
+            }
+            // Extract brand from attributes or title
+            if (!productBrand) {
+              const brandAttr = data.attributes?.["Brand"] || data.attributes?.["brand"];
+              if (brandAttr) {
+                setProductBrand(brandAttr);
+              }
+            }
+            // Auto-fill target keyword for competitor analysis
+            if (!targetKeyword && data.productTitle) {
+              setTargetKeyword(data.productTitle);
+            }
+            toast.success(`Product scraped: ${data.productTitle}`);
+          }
+        });
+      }, 800); // debounce
+      return () => clearTimeout(timer);
+    }
+  }, [productUrl]);
+
+  // When entering step 3, auto-fill targetKeyword from product name if empty
+  useEffect(() => {
+    if (currentStep === 3 && !targetKeyword && productName) {
+      setTargetKeyword(productName);
+    }
+  }, [currentStep, productName, targetKeyword]);
+
   const handleAutoFillSEO = async () => {
     if (!productName && !targetKeyword) {
       toast.error("Please enter a product name or target keyword first");
@@ -112,7 +151,6 @@ const ContentWizard = () => {
     const result = await generateSEO(topic, articleType, productName);
     
     if (result) {
-      // Use the first title as default
       if (result.titles && result.titles.length > 0) {
         setSeoTitle(result.titles[0].text);
         setTitleOptions(result.titles);
@@ -140,6 +178,7 @@ const ContentWizard = () => {
       affiliateId: affiliateId || undefined,
       ctaStyle,
       ctaPlacement,
+      amazonProductData: productData || undefined,
       competitorData: competitorData ? {
         targetWordCount: competitorData.targetWordCount,
         contentGaps: competitorData.contentGaps,
@@ -160,13 +199,13 @@ const ContentWizard = () => {
       case 2:
         return productUrl || productName;
       case 3:
-        return true; // Optional step
+        return true;
       case 4:
         return seoTitle && metaDescription;
       case 5:
-        return true; // Optional step
+        return true;
       case 6:
-        return true; // Optional step
+        return true;
       case 7:
         return true;
       default:
@@ -243,6 +282,26 @@ const ContentWizard = () => {
                 value={productUrl}
                 onChange={(e) => setProductUrl(e.target.value)}
               />
+              {isScrapingProduct && (
+                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Scraping product data...
+                </div>
+              )}
+              {scrapeError && (
+                <p className="text-sm text-destructive mt-2">{scrapeError}</p>
+              )}
+              {productData && scraped && (
+                <div className="mt-3 p-3 bg-secondary/10 rounded-lg border border-secondary/30">
+                  <p className="text-sm font-medium text-secondary">✓ Product data scraped successfully</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {productData.productTitle} • {productData.price || 'Price N/A'} • 
+                    Rating: {productData.averageRating || 'N/A'} ({productData.totalVotes || 0} reviews) • 
+                    {productData.productImages?.length || 0} images • 
+                    {productData.aboutThisItem?.length || 0} features
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="relative">
@@ -309,7 +368,6 @@ const ContentWizard = () => {
               </Button>
             </div>
 
-            {/* Title Options from AI */}
             {titleOptions.length > 0 && (
               <div>
                 <Label className="text-base font-semibold mb-3 block">AI-Generated Title Options</Label>
@@ -433,7 +491,10 @@ const ContentWizard = () => {
                   <RadioGroupItem value="amazon" id="amazon" />
                   <div>
                     <Label htmlFor="amazon" className="font-medium cursor-pointer">Amazon Product Images</Label>
-                    <p className="text-sm text-muted-foreground">Extract images directly from the product page</p>
+                    <p className="text-sm text-muted-foreground">
+                      Extract images directly from the product page
+                      {productData?.productImages?.length ? ` (${productData.productImages.length} available)` : ''}
+                    </p>
                   </div>
                 </div>
                 <div
@@ -555,6 +616,18 @@ const ContentWizard = () => {
                       <span className="text-muted-foreground">Affiliate:</span>
                       <p className="font-medium">{affiliateId || "Not configured"}</p>
                     </div>
+                    {productData && (
+                      <>
+                        <div>
+                          <span className="text-muted-foreground">Product Data:</span>
+                          <p className="font-medium text-secondary">✓ Real data scraped</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Rating:</span>
+                          <p className="font-medium">{productData.averageRating || 'N/A'} ({productData.totalVotes || 0} reviews)</p>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </>

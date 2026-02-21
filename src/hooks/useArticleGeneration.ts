@@ -2,37 +2,28 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import type { AmazonProductData } from "@/utils/amazonScraper";
 
 interface ArticleConfiguration {
-  // Core settings
   articleType: string;
   niche: string;
   productUrl?: string;
   productName?: string;
   productBrand?: string;
-  
-  // SEO settings
   seoTitle: string;
   metaDescription: string;
   primaryKeyword: string;
   secondaryKeywords: string;
-  
-  // Image settings
   includeFeaturedImage: boolean;
   bodyImageCount: number;
   imageSource: "amazon" | "ai";
-  
-  // Affiliate settings
   affiliateId?: string;
   ctaStyle: string;
   ctaPlacement: string;
-  
-  // Content settings
   wordCount?: number;
   tone?: string;
   readingLevel?: string;
-  
-  // Enhanced competitor data
+  amazonProductData?: AmazonProductData;
   competitorData?: {
     targetWordCount?: number;
     longestCompetitor?: number;
@@ -87,19 +78,38 @@ export function useArticleGeneration() {
       setProgress(20);
       setProgressMessage("Connecting to AI engine...");
 
-      // Enhanced word count calculation
       const calculatedWordCount = Math.max(
         config.wordCount || 3500,
         config.competitorData?.targetWordCount || 3500,
         config.competitorData?.longestCompetitor 
           ? Math.ceil(config.competitorData.longestCompetitor * 1.25) 
           : 3500,
-        3500 // Absolute minimum floor
+        3500
       );
 
       console.log('Enforcing minimum word count:', calculatedWordCount);
 
-      // Build configuration for edge function
+      // Build product data summary for edge functions
+      const productDataSummary = config.amazonProductData ? {
+        title: config.amazonProductData.productTitle,
+        price: config.amazonProductData.price,
+        rating: config.amazonProductData.averageRating,
+        totalReviews: config.amazonProductData.totalVotes,
+        features: config.amazonProductData.aboutThisItem || [],
+        images: config.amazonProductData.productImages || [],
+        attributes: config.amazonProductData.attributes || {},
+        reviews: [
+          ...(config.amazonProductData.localReviewsData || []),
+          ...(config.amazonProductData.globalReviewsData || []),
+        ].slice(0, 10),
+        customerQuestions: (config.amazonProductData.customerQuestions || []).slice(0, 10),
+        colors: config.amazonProductData.colors || [],
+        sizes: config.amazonProductData.sizes || [],
+        categories: config.amazonProductData.productCategoryBreadcrumbs || [],
+        asin: config.amazonProductData.productASIN,
+        details: config.amazonProductData.details || [],
+      } : null;
+
       const edgeConfig = {
         wordCount: calculatedWordCount,
         tone: config.tone || "Balanced & Authoritative",
@@ -118,7 +128,6 @@ export function useArticleGeneration() {
         amazonAffiliateId: config.affiliateId || "",
         ctaCount: config.ctaPlacement === "after-sections" ? 6 : 2,
         ctaStyle: config.ctaStyle,
-        // Enhanced competitor data
         competitorData: {
           targetWordCount: config.competitorData?.targetWordCount || 3500,
           longestCompetitor: config.competitorData?.longestCompetitor || 3500,
@@ -130,12 +139,12 @@ export function useArticleGeneration() {
         },
         contentGaps: config.competitorData?.contentGaps || [],
         suggestedHeadings: config.competitorData?.suggestedHeadings || [],
+        productData: productDataSummary,
       };
 
       setProgress(30);
-      setProgressMessage(`Generating ${calculatedWordCount.toLocaleString()}+ word article...`);
+      setProgressMessage(`Generating ${calculatedWordCount.toLocaleString()}+ word article${productDataSummary ? ' with real product data' : ''}...`);
 
-      // Call the appropriate edge function
       const requestBody = config.articleType === "amazon-review" 
         ? { productUrl: config.productUrl || config.productName, configuration: edgeConfig }
         : { topic: config.productName || config.productUrl, configuration: edgeConfig };
@@ -159,14 +168,12 @@ export function useArticleGeneration() {
       const generatedContent = data.content;
       const actualWordCount = generatedContent.split(/\s+/).length;
 
-      // Extract title from generated content (usually first H1)
       const titleMatch = generatedContent.match(/^#\s+(.+)$/m);
       const extractedTitle = titleMatch ? titleMatch[1] : config.seoTitle;
 
       setProgress(80);
       setProgressMessage("Saving article to database...");
 
-      // Save to database
       const articleData = {
         user_id: user.id,
         title: config.seoTitle || extractedTitle,
@@ -179,6 +186,7 @@ export function useArticleGeneration() {
         affiliate_id: config.affiliateId || null,
         featured_image_url: null,
         featured_image_alt: config.includeFeaturedImage ? `${config.productName} featured image` : null,
+        amazon_product_data: productDataSummary as any,
         configuration: {
           niche: config.niche,
           productName: config.productName,
@@ -221,7 +229,6 @@ export function useArticleGeneration() {
       setProgress(90);
       setProgressMessage("Finalizing...");
 
-      // Generate images if AI source selected
       if (config.imageSource === "ai" && config.bodyImageCount > 0) {
         setProgressMessage("Generating images (background)...");
         supabase.functions.invoke("generate-article-images", {
@@ -230,8 +237,21 @@ export function useArticleGeneration() {
             articleContent: generatedContent.substring(0, 2000),
             imageCount: config.bodyImageCount,
             includeFeatured: config.includeFeaturedImage,
+            productData: productDataSummary,
           },
         }).catch(err => console.error("Image generation error:", err));
+      }
+
+      // Download Amazon images if selected
+      if (config.imageSource === "amazon" && config.amazonProductData?.productImages?.length) {
+        setProgressMessage("Downloading product images (background)...");
+        supabase.functions.invoke("download-amazon-images", {
+          body: {
+            articleId: savedArticle.id,
+            imageUrls: config.amazonProductData.productImages.slice(0, config.bodyImageCount + (config.includeFeaturedImage ? 1 : 0)),
+            productName: config.productName || config.amazonProductData.productTitle,
+          },
+        }).catch(err => console.error("Image download error:", err));
       }
 
       setProgress(100);

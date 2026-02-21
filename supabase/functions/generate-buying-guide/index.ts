@@ -5,56 +5,51 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Word count enforcement generator
+function buildProductDataSection(productData: any): string {
+  if (!productData) return '';
+  let section = `\n═══════════════════════════════════════════════════════════
+REAL PRODUCT DATA (Use this actual data in the article)
+═══════════════════════════════════════════════════════════\n`;
+  if (productData.title) section += `\nProduct Title: ${productData.title}`;
+  if (productData.price) section += `\nPrice: ${productData.price}`;
+  if (productData.rating) section += `\nAverage Rating: ${productData.rating}/5`;
+  if (productData.totalReviews) section += `\nTotal Reviews: ${productData.totalReviews}`;
+  if (productData.categories?.length) section += `\nCategory: ${productData.categories.join(' > ')}`;
+  if (productData.colors?.length) section += `\nAvailable Colors: ${productData.colors.join(', ')}`;
+  if (productData.sizes?.length) section += `\nAvailable Sizes: ${productData.sizes.join(', ')}`;
+  if (productData.features?.length) {
+    section += `\n\nKey Features (About This Item):`;
+    productData.features.forEach((f: string, i: number) => { section += `\n${i + 1}. ${f}`; });
+  }
+  if (productData.attributes && Object.keys(productData.attributes).length) {
+    section += `\n\nProduct Attributes:`;
+    for (const [key, value] of Object.entries(productData.attributes)) { section += `\n- ${key}: ${value}`; }
+  }
+  if (productData.reviews?.length) {
+    section += `\n\nCustomer Reviews:`;
+    productData.reviews.slice(0, 6).forEach((r: any, i: number) => {
+      section += `\n[${i + 1}] ⭐${r.stars}/5 "${r.title}": ${r.text?.substring(0, 200)}`;
+    });
+  }
+  if (productData.customerQuestions?.length) {
+    section += `\n\nCustomer Q&A:`;
+    productData.customerQuestions.slice(0, 6).forEach((q: any) => {
+      section += `\nQ: ${q.question}\nA: ${q.answer}`;
+    });
+  }
+  section += `\n\nIMPORTANT: Use REAL data above for authenticity.\n`;
+  return section;
+}
+
 const generateWordCountEnforcement = (minimumRequired: number, competitorWordCount: number): string => {
   return `
 ═══════════════════════════════════════════════════════════
 🚨 CRITICAL WORD COUNT REQUIREMENT 🚨
-═══════════════════════════════════════════════════════════
-
 MANDATORY MINIMUM: ${minimumRequired} WORDS
-
-This is NON-NEGOTIABLE. Your article MUST contain at least ${minimumRequired} words.
-
-CONTEXT:
-• Top ranking competitors have approximately ${competitorWordCount} words
-• You MUST write at least ${minimumRequired} words to outrank them
-• This is ${Math.round((minimumRequired / competitorWordCount - 1) * 100)}% longer than competitors
-
-══ REQUIRED WORD COUNT BREAKDOWN ══
-
-• Introduction & Overview: 500-700 words
-• Each Major Section: 400-600 words per section  
-• Buying Guide/Criteria Section: 600-900 words
-• Product Reviews/Recommendations: 500-800 words per product
-• FAQ Section: 500-800 words (15-25 questions)
-• Conclusion & Final Thoughts: 400-500 words
-
-══ MANDATORY EXPANSION STRATEGIES ══
-
-✓ Detailed real-world examples and specific use cases
-✓ Expert tips and insider knowledge for every major point
-✓ Explain the WHY behind recommendations, not just WHAT
-✓ Comprehensive comparison tables WITH detailed explanations
-✓ Multiple user scenarios and personas
-✓ Technical specifications with context and real-world implications
-✓ Troubleshooting tips and common problem solutions
-✓ Historical context or market trend analysis
-✓ Step-by-step guides where relevant
-✓ Detailed pros AND cons for every option discussed
-
-══ FORBIDDEN ACTIONS ══
-
-❌ DO NOT summarize or condense information
-❌ DO NOT skip sections or rush through topics
-❌ DO NOT use brief, surface-level descriptions
-❌ DO NOT end the article prematurely
-❌ DO NOT use placeholder text or generic filler
-
+Top ranking competitors have approximately ${competitorWordCount} words.
+You MUST write at least ${minimumRequired} words to outrank them.
 IF YOUR ARTICLE IS UNDER ${minimumRequired} WORDS, YOU HAVE FAILED THIS TASK.
-
 ═══════════════════════════════════════════════════════════
-
 `;
 };
 
@@ -66,29 +61,30 @@ serve(async (req) => {
   try {
     const { topic, configuration } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
-
-    // Calculate minimum word count
     const targetWordCount = configuration.wordCount || 3500;
     const competitorWordCount = configuration.competitorData?.targetWordCount || 3500;
     const longestCompetitor = configuration.competitorData?.longestCompetitor || 3500;
     const minimumRequired = Math.max(targetWordCount, competitorWordCount, Math.ceil(longestCompetitor * 1.25), 3500);
 
-    console.log(`Generating buying guide for: ${topic}, minimum words: ${minimumRequired}`);
+    const productDataSection = buildProductDataSection(configuration.productData);
+    const hasRealData = !!configuration.productData;
+
+    console.log(`Generating buying guide for: ${topic}, minimum words: ${minimumRequired}, hasRealData: ${hasRealData}`);
 
     const wordCountEnforcement = generateWordCountEnforcement(minimumRequired, competitorWordCount);
 
     const systemPrompt = `You are an expert buying guide writer specializing in comprehensive, SEO-optimized product guides. You create authoritative content that helps buyers make informed decisions across all budget levels.
 
-${wordCountEnforcement}`;
+${wordCountEnforcement}
+
+${hasRealData ? 'You have REAL scraped Amazon product data. Use actual product details, prices, ratings, and customer reviews for authenticity.' : ''}`;
 
     const userPrompt = `Create a comprehensive buying guide about: ${topic}
-
+${productDataSection}
 CONFIGURATION:
-- Target Word Count: ${minimumRequired} words (MINIMUM - do not write less than this)
+- Target Word Count: ${minimumRequired} words (MINIMUM)
 - Tone: ${configuration.tone}
 - Reading Level: ${configuration.readingLevel}
 - Primary Keyword: ${configuration.primaryKeyword || 'auto-detect'}
@@ -105,155 +101,42 @@ STRUCTURE (14 Comprehensive Sections):
 
 ## 1. Title & Meta
 - H1: "[Primary Keyword] - Complete Buying Guide [Current Year]"
-- Meta Description (150-160 chars): Compelling summary with primary keyword
-- URL Slug: SEO-friendly, keyword-rich
+- Meta Description (150-160 chars)
 
 ## 2. Executive Summary (300-400 words)
-- Quick overview of the guide
-- Who this guide is for
-- Key takeaways and recommendations
-- Article navigation preview
-- Why trust this guide
-
-## 3. Quick Reference Table
-- Top 3 picks (Budget/Mid-Range/Premium)
-- Key specs comparison
-- Price ranges
-- Best for scenarios
-- Overall ratings
-
+## 3. Quick Reference Table - Top 3 picks
 ## 4. Understanding [Product Category] (500-700 words)
-- What is it and why it matters
-- Types and categories explained
-- Common use cases
-- Industry overview and trends
-- How technology has evolved
-- Future outlook
-
 ## 5. Key Features to Consider (700-900 words)
-- Essential specifications explained
-- Feature priority matrix
-- How features impact performance
-- Must-have vs nice-to-have features
-- Technical terms demystified
-- What to prioritize based on use case
-
 ## 6. Budget Breakdown (400-500 words)
-- Entry-level ($): What to expect and who it's for
-- Mid-range ($$): Sweet spot analysis and value proposition
-- Premium ($$$): Professional/enthusiast tier benefits
-- Value proposition for each tier
-- When to upgrade and when to save
-
 ## 7. Top Product Recommendations (1500-2000 words)
-For each of ${configuration.productCount || 10} recommended products:
-- Product name and brief intro (50 words)
-- Key specifications (bullet list)
-- Pros and cons (5-6 each)
-- Best for (specific use case)
-- Price range and value assessment
-- Where to buy
-- Star rating and recommendation strength
-- Expert verdict (100 words)
-
+${hasRealData ? 'Feature the real product from scraped data as one of the top recommendations with its actual specs, price, and reviews.' : ''}
 ## 8. Detailed Comparison Table
-- Side-by-side specs for all products
-- Performance metrics
-- Price comparison
-- Value scores
-- Winner by category
-- Quick decision guide
-
 ## 9. Buying Factors Deep Dive (600-800 words)
-- Size and portability considerations
-- Compatibility requirements
-- Brand reliability and warranty
-- Customer service reputation
-- Long-term cost of ownership
-- Maintenance requirements
-- Resale value considerations
-
 ## 10. Common Mistakes to Avoid (400-500 words)
-- Overspending on unnecessary features
-- Ignoring compatibility
-- Falling for marketing hype
-- Not considering long-term needs
-- Skipping warranty coverage
-- Buying outdated models
-- Ignoring user reviews
-
 ## 11. Expert Tips & Tricks (400-500 words)
-- Shopping strategies (when to buy)
-- How to spot deals vs. traps
-- Negotiation tactics
-- Extended warranty considerations
-- Return policy insights
-- Setup and optimization tips
-- Maintenance best practices
-
 ## 12. FAQ Section (${configuration.faqCount || 20} questions, 600-800 words)
-Address:
-- Common pre-purchase questions
-- Technical clarifications
-- Comparison queries
-- Maintenance and longevity
-- Value and pricing concerns
-- Compatibility questions
-- Setup and installation
-Each with detailed, helpful answers (50-100 words)
-
+${hasRealData && configuration.productData?.customerQuestions?.length ? 'Include the real customer Q&A provided in the product data.' : ''}
 ## 13. Future-Proofing & Trends (300-400 words)
-- Emerging technologies
-- What's coming next year
-- Should you wait or buy now?
-- Upgrade path considerations
-- Industry predictions
-
 ## 14. Final Verdict & Recommendations (400-500 words)
-- Overall category winner with justification
-- Best for specific budgets (detailed)
-- Best for specific use cases (detailed)
-- Editor's personal pick with reasoning
-- Clear call-to-action
-- Final thoughts and summary
 
 SEO REQUIREMENTS:
-- Primary keyword in H1, first paragraph, and naturally throughout
-- Secondary keywords distributed naturally (10-15 instances)
-- Internal linking opportunities highlighted
-- Header hierarchy (H1 > H2 > H3 > H4)
-- Schema markup structure for ${configuration.schemaType}
-- Image alt text suggestions
-- Meta title under 60 characters
-- Featured snippet optimization
+- Primary keyword in H1, first paragraph, naturally throughout
+- Secondary keywords distributed (10-15 instances)
+- Header hierarchy optimized
+- Schema markup for ${configuration.schemaType}
 
 WRITING STYLE:
 - ${configuration.tone} and authoritative
 - ${configuration.readingLevel} reading level
-- Active voice preferred (80%+)
-- Short paragraphs (2-4 sentences)
-- Bullet points for scannability
-- Data and statistics where relevant
-- Conversational yet professional
+- Active voice (80%+), short paragraphs, bullet points
 
-ENGAGEMENT ELEMENTS:
-- ${configuration.ctaCount} strategic CTAs throughout
-- Pro tips and expert insights highlighted
-- Warning boxes for critical information
-- Comparison highlights
-- Money-saving tips emphasized
-- Summary boxes for each major section
+ENGAGEMENT: ${configuration.ctaCount} strategic CTAs throughout
 
-REMEMBER: Your article MUST be at least ${minimumRequired} words. Every section should be thorough and detailed. Do not summarize or condense.
-
-Return ONLY the complete markdown article with all sections, no additional commentary.`;
+REMEMBER: MUST be at least ${minimumRequired} words. Return ONLY the complete markdown article.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-2.5-pro",
         messages: [
@@ -268,14 +151,8 @@ Return ONLY the complete markdown article with all sections, no additional comme
     if (!response.ok) {
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
-      
-      if (response.status === 429) {
-        throw new Error("Rate limit exceeded. Please try again in a few moments.");
-      }
-      if (response.status === 402) {
-        throw new Error("API credits exhausted. Please add credits to continue.");
-      }
-      
+      if (response.status === 429) throw new Error("Rate limit exceeded. Please try again in a few moments.");
+      if (response.status === 402) throw new Error("API credits exhausted. Please add credits to continue.");
       throw new Error(`AI gateway returned ${response.status}`);
     }
 
@@ -286,12 +163,7 @@ Return ONLY the complete markdown article with all sections, no additional comme
     console.log(`Article generated successfully. Word count: ${wordCount}`);
 
     return new Response(
-      JSON.stringify({ 
-        content: generatedContent,
-        wordCount: wordCount,
-        targetWordCount: minimumRequired,
-        generatedAt: new Date().toISOString()
-      }),
+      JSON.stringify({ content: generatedContent, wordCount, targetWordCount: minimumRequired, generatedAt: new Date().toISOString() }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
