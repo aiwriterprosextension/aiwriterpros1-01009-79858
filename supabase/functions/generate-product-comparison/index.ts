@@ -8,7 +8,7 @@ const corsHeaders = {
 function buildProductDataSection(productData: any): string {
   if (!productData) return '';
   let section = `\n═══════════════════════════════════════════════════════════
-REAL PRODUCT DATA (Use this actual data in the comparison)
+REAL PRODUCT DATA (Use as Product A in the comparison)
 ═══════════════════════════════════════════════════════════\n`;
   if (productData.title) section += `\nProduct Title: ${productData.title}`;
   if (productData.price) section += `\nPrice: ${productData.price}`;
@@ -34,19 +34,9 @@ REAL PRODUCT DATA (Use this actual data in the comparison)
       section += `\nQ: ${q.question}\nA: ${q.answer}`;
     });
   }
-  section += `\n\nIMPORTANT: Use this REAL product as one of the products in the comparison. Use actual specs, price, and reviews.\n`;
+  section += `\n\nIMPORTANT: Use REAL data for Product A. Use actual specs, price, and reviews.\n`;
   return section;
 }
-
-const generateWordCountEnforcement = (minimumRequired: number, competitorWordCount: number): string => {
-  return `
-═══════════════════════════════════════════════════════════
-🚨 CRITICAL WORD COUNT REQUIREMENT 🚨
-MANDATORY MINIMUM: ${minimumRequired} WORDS
-IF YOUR ARTICLE IS UNDER ${minimumRequired} WORDS, YOU HAVE FAILED THIS TASK.
-═══════════════════════════════════════════════════════════
-`;
-};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -58,64 +48,75 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const targetWordCount = configuration.wordCount || 3500;
-    const competitorWordCount = configuration.competitorData?.targetWordCount || 3500;
-    const longestCompetitor = configuration.competitorData?.longestCompetitor || 3500;
-    const minimumRequired = Math.max(targetWordCount, competitorWordCount, Math.ceil(longestCompetitor * 1.25), 3500);
+    const targetWordCount = configuration.wordCount || 1500;
+    const competitorShortest = configuration.competitorData?.shortestCompetitor || 1500;
+    const densityTarget = Math.min(targetWordCount, competitorShortest, 2000);
 
     const productDataSection = buildProductDataSection(configuration.productData);
     const hasRealData = !!configuration.productData;
 
-    console.log(`Generating product comparison for: ${topic}, minimum words: ${minimumRequired}, hasRealData: ${hasRealData}`);
+    console.log(`Generating density-first comparison for: ${topic}, target: ~${densityTarget} words, hasRealData: ${hasRealData}`);
 
-    const wordCountEnforcement = generateWordCountEnforcement(minimumRequired, competitorWordCount);
+    const systemPrompt = `You are an expert comparison writer focused on MAXIMUM information density. Google often ranks a 500-word page with a great comparison table over a 5,000-word essay. Create the shortest possible comparison that dominates SERPs.
 
-    const systemPrompt = `You are an expert comparison writer specializing in detailed side-by-side product analysis. You create comprehensive, SEO-optimized comparison content that helps buyers make informed decisions between specific products.
+═══════════════════════════════════════════════════════════
+🎯 DENSITY-FIRST CONTENT STRATEGY 🎯
+TARGET: ~${densityTarget} WORDS (every sentence must earn its place)
+RULE: Comparison tables are king. Data over prose.
+═══════════════════════════════════════════════════════════
 
-${wordCountEnforcement}
+- Featured Snippet Bait: 40-word direct comparison verdict
+- Use extensive HTML/markdown comparison tables
+- Keep ALL Schema.org and E-E-A-T signals
+- Include Affiliate Disclosure
 
-${hasRealData ? 'You have REAL scraped Amazon product data for one of the products. Use actual specs, price, rating, features, and customer reviews. Feature it as Product A in the comparison.' : ''}`;
+${hasRealData ? 'You have REAL scraped product data for Product A. Use actual specs, price, rating, and reviews.' : ''}`;
 
-    const userPrompt = `Create a comprehensive product comparison article about: ${topic}
+    const userPrompt = `Create a HIGH-DENSITY product comparison about: ${topic}
 ${productDataSection}
 CONFIGURATION:
-- Target Word Count: ${minimumRequired} words (MINIMUM)
+- Target: ~${densityTarget} words (lean & mean)
 - Tone: ${configuration.tone}
 - Reading Level: ${configuration.readingLevel}
 - Primary Keyword: ${configuration.primaryKeyword || 'auto-detect'}
 - Secondary Keywords: ${configuration.secondaryKeywords || 'auto-detect'}
-- Meta Description: ${configuration.metaDescription || 'auto-generate'}
-- Products to Compare: ${configuration.productCount || 2}
-- Comparison Categories: ${configuration.comparisonCategories || 8}
+- Products: ${configuration.productCount || 2}
 - Schema Type: ${configuration.schemaType}
-- FAQ Count: ${configuration.faqCount || 20}
-- Image Guidelines: ${configuration.imageCount} images in ${configuration.imageFormat} format
+- FAQ: ${configuration.faqCount || 8} questions
 
-STRUCTURE (14 Comprehensive Sections):
+DENSITY-FIRST STRUCTURE:
 
-## 1. Title & Meta - "[Product A] vs [Product B]: Which Should You Buy? [Year]"
-## 2. Quick Verdict (300-400 words)
-## 3. Side-by-Side Comparison Table (10-12 specs)
-${hasRealData ? 'Use REAL specs from the scraped product for Product A columns.' : ''}
-## 4. Product Overviews (500-700 words total)
-${hasRealData ? 'Use REAL product data for Product A overview (title, features, rating, price).' : ''}
-## 5. Detailed Feature Comparison (1200-1500 words, ${configuration.comparisonCategories || 8} categories)
-## 6. Pros & Cons Breakdown (400-500 words)
-## 7. Use Case Analysis (500-700 words)
-## 8. Price & Value Comparison (400-500 words)
-${hasRealData && configuration.productData?.price ? `Product A real price: ${configuration.productData.price}` : ''}
-## 9. Real-World Testing Results (500-600 words)
-## 10. Upgrade & Alternative Considerations (400-500 words)
-## 11. Expert Recommendations (400-500 words)
-## 12. Winner by Category (200-300 words)
-## 13. FAQ Section (${configuration.faqCount || 20} questions, 500-700 words)
+## 1. Quick Verdict (EXACTLY 40 words)
+Single paragraph: "[Product A] vs [Product B]: [direct winner declaration with key reason]" — Featured Snippet bait.
+
+## 2. Side-by-Side Comparison Table (12-15 specs)
+| Feature | Product A | Product B |
+${hasRealData ? 'Use REAL specs for Product A.' : ''}
+This table IS the article. Make it comprehensive.
+
+## 3. Winner by Category Table
+| Category | Winner | Why (1 sentence) |
+6-8 categories.
+
+## 4. Key Differences (bulleted list, 80-120 words)
+5-6 bullet points highlighting the most important differentiators.
+
+## 5. Pros & Cons Side-by-Side
+| | Product A Pros | Product B Pros |
+| | Product A Cons | Product B Cons |
+
+## 6. Best For (bulleted list, 60 words)
+- Product A: best for [use case]
+- Product B: best for [use case]
+
+## 7. FAQ (${configuration.faqCount || 8} questions)
 ${hasRealData && configuration.productData?.customerQuestions?.length ? 'Include real customer Q&A.' : ''}
-## 14. Final Verdict (400-500 words)
+1-2 sentence answers. Direct comparisons.
 
-WRITING STYLE: ${configuration.tone}, ${configuration.readingLevel}, objective and balanced
-ENGAGEMENT: ${configuration.ctaCount} strategic CTAs
+## 8. Final Verdict (40-60 words)
+Clear winner with CTA.
 
-REMEMBER: MUST be at least ${minimumRequired} words. Return ONLY the complete markdown article.`;
+CRITICAL: Tables should dominate this article. Return ONLY complete markdown.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -127,7 +128,7 @@ REMEMBER: MUST be at least ${minimumRequired} words. Return ONLY the complete ma
           { role: "user", content: userPrompt },
         ],
         temperature: 0.4,
-        max_tokens: 16000,
+        max_tokens: 8000,
       }),
     });
 
@@ -143,10 +144,10 @@ REMEMBER: MUST be at least ${minimumRequired} words. Return ONLY the complete ma
     const generatedContent = data.choices[0].message.content;
     const wordCount = generatedContent.split(/\s+/).length;
 
-    console.log(`Article generated successfully. Word count: ${wordCount}`);
+    console.log(`Comparison generated. Word count: ${wordCount}`);
 
     return new Response(
-      JSON.stringify({ content: generatedContent, wordCount, targetWordCount: minimumRequired, generatedAt: new Date().toISOString() }),
+      JSON.stringify({ content: generatedContent, wordCount, targetWordCount: densityTarget, generatedAt: new Date().toISOString() }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
