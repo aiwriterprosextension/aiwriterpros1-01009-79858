@@ -86,226 +86,99 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const targetWordCount = configuration.wordCount || 3500;
-    const competitorWordCount = configuration.competitorData?.targetWordCount || 3500;
-    const longestCompetitor = configuration.competitorData?.longestCompetitor || 3500;
-    const minimumRequired = Math.max(targetWordCount, competitorWordCount, Math.ceil(longestCompetitor * 1.25), 3500);
+    const targetWordCount = configuration.wordCount || 1500;
+    const competitorShortest = configuration.competitorData?.shortestCompetitor || 1500;
+    const densityTarget = Math.min(targetWordCount, competitorShortest, 2000);
 
     const productDataSection = buildProductDataSection(configuration.productData);
     const hasRealData = !!configuration.productData;
 
-    console.log(`Generating Amazon review, minimum words: ${minimumRequired}, hasRealData: ${hasRealData}`);
+    console.log(`Generating density-first Amazon review, target: ~${densityTarget} words, hasRealData: ${hasRealData}`);
 
-    const systemPrompt = `You are an elite Amazon affiliate SEO specialist and product reviewer with 10+ years of experience. Your mission: Create comprehensive, deeply researched product reviews that rank #1 on Google, provide genuine value to readers, and convert browsers into confident buyers.
+    const systemPrompt = `You are an elite Amazon affiliate SEO specialist. Your mission: Create the SHORTEST possible product review that contains 100% of required SEO signals to outrank long-form competitors.
 
 ═══════════════════════════════════════════════════════════
-🚨 CRITICAL WORD COUNT REQUIREMENT 🚨
-MANDATORY MINIMUM: ${minimumRequired} WORDS
-This is NON-NEGOTIABLE. Your article MUST contain at least ${minimumRequired} words.
-Top ranking competitors have approximately ${competitorWordCount} words.
-IF YOUR ARTICLE IS UNDER ${minimumRequired} WORDS, YOU HAVE FAILED THIS TASK.
+🎯 DENSITY-FIRST CONTENT STRATEGY 🎯
+TARGET: ~${densityTarget} WORDS (NOT more — every sentence must earn its place)
+RULE: Highest information value per sentence. Zero fluff.
 ═══════════════════════════════════════════════════════════
 
-${hasRealData ? 'You have REAL scraped Amazon product data below. Use the ACTUAL product title, price, rating, features, and customer reviews in your article. Do NOT make up fake data when real data is provided.' : ''}
+CORE PRINCIPLES:
+- Data-rich HTML tables beat 5,000-word essays for Google rankings
+- Bulleted lists with specific data points over paragraphs of prose
+- Featured Snippet Bait: 40-word direct-answer paragraphs
+- Every section must contain a table, list, or data point
+- Keep ALL Schema.org (JSON-LD) and E-E-A-T signals — short content needs MORE technical proof
 
-CORE EXPERTISE:
-- SEO optimization for product review keywords
-- E-E-A-T signals (Experience, Expertise, Authoritativeness, Trust)
-- Conversion-focused copywriting
-- Data-driven product analysis
-- Customer psychology and pain points
+${hasRealData ? 'You have REAL scraped Amazon product data. Use ACTUAL specs, prices, ratings, and customer quotes. Do NOT fabricate data.' : ''}
 
 WRITING STANDARDS:
-- Natural, conversational tone (${configuration.tone || 'Balanced'})
-- 8th grade reading level for accessibility
-- Active voice (80%+ of sentences)
-- Specific numbers and test results
-- Honest pros AND cons
-- Zero fluff or keyword stuffing`;
+- ${configuration.tone || 'Balanced'} tone, ${configuration.readingLevel || '8th Grade'} reading level
+- Active voice, zero filler words
+- Specific numbers and data in every section
+- Honest pros AND cons`;
 
-    const userPrompt = `Create a comprehensive, SEO-optimized Amazon product review that will rank #1 on Google.
+    const userPrompt = `Create a HIGH-DENSITY, SEO-optimized Amazon product review.
 
 PRODUCT URL: ${productUrl}
 ${productDataSection}
 CONFIGURATION:
-- Target word count: ${minimumRequired} words (MINIMUM - must reach this count)
-- Tone: ${configuration.tone || 'Balanced & Authoritative'}
-- Reading level: ${configuration.readingLevel || '8th Grade'} (Flesch-Kincaid)
+- Target: ~${densityTarget} words (lean & mean — NOT a word more than needed)
 - Primary keyword: ${configuration.primaryKeyword || 'product review'}
 - Secondary keywords: ${configuration.secondaryKeywords || 'N/A'}
-- Meta description: ${configuration.metaDescription || 'Auto-generate optimized meta description'}
-- Include competitor comparison: ${configuration.includeComparison ? 'Yes' : 'No'}
-- Include FAQ section: ${configuration.includeFaq ? `Yes (${configuration.faqCount || 20} questions)` : 'No'}
-- Schema type: ${configuration.schemaType || 'Product + Review'}
-- Analyze customer reviews: ${configuration.analyzeReviews ? 'Yes' : 'No'}
-- Number of images: ${configuration.imageCount || 5}
-- Image format: ${configuration.imageFormat || 'WebP'}
-- Video integration: ${configuration.videoUrl ? `Yes (${configuration.videoPlacement})` : 'No'}
-- Affiliate links: ${configuration.enableAffiliate ? `Yes (${configuration.ctaCount} CTAs, ${configuration.ctaStyle} style, ID: ${configuration.amazonAffiliateId})` : 'No'}
+- Meta description: ${configuration.metaDescription || 'Auto-generate'}
+- Schema: ${configuration.schemaType || 'Product + Review'}
+- FAQ: ${configuration.faqCount || 8} questions
+- CTAs: ${configuration.ctaCount || 3}
+- Affiliate ID: ${configuration.amazonAffiliateId || 'N/A'}
 
-MANDATORY ARTICLE STRUCTURE:
-Follow this exact structure with specified word counts for each section.
+DENSITY-FIRST STRUCTURE:
 
-═══════════════════════════════════════════════════════════════════
-SECTION 1: QUICK NAVIGATION & RATING BOX (100-150 words)
-═══════════════════════════════════════════════════════════════════
+## 1. Quick Verdict (EXACTLY 40 words)
+A single paragraph that directly answers "Is [product] worth buying?" — this is Featured Snippet bait for Position 0.
 
-Create a jump-link table of contents and at-a-glance decision box:
+## 2. At-a-Glance Rating Table
+| Criteria | Rating |
+|----------|--------|
+Use 8-10 rows. Include Overall, Value, Build, Features, etc.
 
-**Table of Contents (Jump Links):**
-1. Product Overview & Key Specifications
-2. Who Should (and Shouldn't) Buy This
-3. Unboxing & First Impressions
-4. Features & Performance Deep-Dive
-5. Real-World Use Cases & Testing
-6. Pros & Cons Analysis
-7. Comparison with Top Alternatives
-8. Price Analysis & Value Assessment
-9. Customer Reviews Summary
-10. Maintenance & Care Guide
-11. FAQ - Your Questions Answered
-12. Final Verdict & Recommendation
+## 3. Key Specs Table (10-12 rows)
+${hasRealData ? 'Use REAL attributes and specs from the scraped data.' : ''}
+Pure data table — no prose needed.
 
-**At-A-Glance Rating Box:**
-| Criteria | Rating/Info |
-|----------|-------------|
-| Overall Rating | ⭐ X.X/5.0 Stars |
-| Price Range | $XXX - $XXX |
-| Best For | [3 specific buyer types] |
-| Standout Feature | [One key differentiator] |
-| Quick Verdict | [1 sentence summary] |
-| Top Alternative | [If this doesn't fit] |
+## 4. Who Should Buy This (bulleted list, 60-80 words)
+✅ Perfect for: 3-4 bullet points
+❌ Skip if: 2-3 bullet points
 
-═══════════════════════════════════════════════════════════════════
-SECTION 2: INTRODUCTION (300-400 words)
-═══════════════════════════════════════════════════════════════════
+## 5. Features Analysis (300-400 words)
+${hasRealData ? 'Use REAL "About This Item" features. Analyze each in 2-3 sentences max.' : ''}
+For each feature: What it does → Why it matters → Real-world impact. Use sub-tables where possible.
 
-**Opening Hook:** Start with a relatable problem or pain point that this product solves.
+## 6. Pros & Cons Table
+| Pros | Cons |
+Two-column table, 5-6 rows each. Specific, data-backed.
 
-**Credibility Statement:** "We tested the [Product Name] for [X weeks/months] in real-world conditions to bring you this comprehensive, unbiased review."
+## 7. Comparison Table vs Top 2 Alternatives
+| Feature | This Product | Alt 1 | Alt 2 |
+8-10 comparison rows with specific values.
 
-**What Makes This Review Different:**
-- Hands-on testing with specific metrics
-- Honest pros and cons (not a sales pitch)
-- Comparison with [X] alternatives we also tested
-- Real customer feedback analysis
+## 8. Price & Value (50-80 words)
+${hasRealData && configuration.productData?.price ? `Real price: ${configuration.productData.price}` : ''}
+Cost-per-use calculation or value comparison. Data, not prose.
 
-**Primary Keyword Integration:** Include "${configuration.primaryKeyword || 'product review'}" naturally in first 100 words.
+## 9. Real Customer Insights (100-150 words)
+${hasRealData ? 'Quote 3-4 REAL customer reviews. Use actual star ratings and quotes.' : ''}
+Summarize sentiment patterns in a mini-table.
 
-**Preview Key Findings:** Tease 2-3 major discoveries without spoiling the full analysis.
+## 10. FAQ (${configuration.faqCount || 8} questions)
+${hasRealData && configuration.productData?.customerQuestions?.length ? 'Use real customer Q&A.' : ''}
+Each answer: 1-2 sentences max. Direct and factual.
 
-═══════════════════════════════════════════════════════════════════
-SECTION 3: PRODUCT OVERVIEW & KEY SPECIFICATIONS (400-500 words)
-═══════════════════════════════════════════════════════════════════
+## 11. Final Verdict (40-60 words)
+Restate the quick verdict with a clear CTA.
 
-**Product Positioning:** What is this product? Who makes it? What market segment does it target?
-
-**Key Specifications Table:**
-Create a detailed table with 10-15 core specs.
-${hasRealData ? 'USE THE REAL PRODUCT ATTRIBUTES AND DETAILS PROVIDED ABOVE.' : ''}
-
-**What's In The Box:**
-List everything included with detailed descriptions.
-
-**Model Variations:**
-Explain different models/versions if applicable.
-
-**Brief Manufacturer Background:**
-Company reputation, product line context, notable innovations.
-
-═══════════════════════════════════════════════════════════════════
-SECTION 4: WHO SHOULD (AND SHOULDN'T) BUY THIS (350-400 words)
-═══════════════════════════════════════════════════════════════════
-
-**✅ Perfect For:**
-1-5 specific user profiles with details
-
-**❌ Not Ideal For:**
-1-4 scenarios where it falls short with better alternatives
-
-**Key Decision Factors:**
-- Budget, primary use case, experience level, long-term needs
-
-═══════════════════════════════════════════════════════════════════
-SECTION 5: UNBOXING & FIRST IMPRESSIONS (350-400 words)
-═══════════════════════════════════════════════════════════════════
-
-Packaging quality, initial build assessment, setup process, out-of-box functionality.
-
-═══════════════════════════════════════════════════════════════════
-SECTION 6: FEATURES & PERFORMANCE DEEP-DIVE (2000-2500 words)
-═══════════════════════════════════════════════════════════════════
-
-${hasRealData ? 'Use the REAL features from the "About This Item" section provided above. Analyze each real feature in depth.' : 'Identify 5-7 major features.'}
-
-For EACH feature, provide:
-- What It Does (50-75 words)
-- How It Works (50-75 words)
-- Real-World Testing Results (150-200 words)
-- Comparison to Competitors
-- Strengths and Limitations
-- User Feedback
-
-═══════════════════════════════════════════════════════════════════
-SECTION 7: REAL-WORLD USE CASES & TESTING (600-700 words)
-═══════════════════════════════════════════════════════════════════
-
-5-6 detailed scenarios (100-120 words each) with specific user profiles, challenges, solutions, and measurable results.
-
-═══════════════════════════════════════════════════════════════════
-SECTION 8: PROS & CONS ANALYSIS (450-500 words)
-═══════════════════════════════════════════════════════════════════
-
-6-8 detailed pros, 5-6 honest cons with explanations.
-
-═══════════════════════════════════════════════════════════════════
-SECTION 9: COMPARISON WITH TOP ALTERNATIVES (900-1000 words)
-═══════════════════════════════════════════════════════════════════
-
-Detailed comparison table and head-to-head analysis with 3 competitors.
-
-═══════════════════════════════════════════════════════════════════
-SECTION 10: PRICE ANALYSIS & VALUE ASSESSMENT (400-500 words)
-═══════════════════════════════════════════════════════════════════
-
-${hasRealData && configuration.productData?.price ? `Current price: ${configuration.productData.price}. Use this REAL price in your analysis.` : 'Research and include current pricing.'}
-
-═══════════════════════════════════════════════════════════════════
-SECTION 11: CUSTOMER REVIEWS SUMMARY (450-500 words)
-═══════════════════════════════════════════════════════════════════
-
-${hasRealData && configuration.productData?.reviews?.length ? 'Use the REAL customer reviews provided above. Quote actual customers.' : 'Analyze customer feedback patterns.'}
-${hasRealData && configuration.productData?.rating ? `Real average rating: ${configuration.productData.rating}/5 from ${configuration.productData.totalReviews} reviews.` : ''}
-
-═══════════════════════════════════════════════════════════════════
-SECTION 12: MAINTENANCE & CARE GUIDE (350-400 words)
-═══════════════════════════════════════════════════════════════════
-
-Cleaning, maintenance, troubleshooting, warranty information.
-
-═══════════════════════════════════════════════════════════════════
-SECTION 13: FAQ - YOUR QUESTIONS ANSWERED (700-800 words)
-═══════════════════════════════════════════════════════════════════
-
-${hasRealData && configuration.productData?.customerQuestions?.length ? 'Include the REAL customer Q&A provided above, plus additional relevant questions.' : 'Create 20-25 comprehensive questions covering specs, performance, maintenance, and purchasing.'}
-
-═══════════════════════════════════════════════════════════════════
-SECTION 14: FINAL VERDICT & RECOMMENDATION (400-450 words)
-═══════════════════════════════════════════════════════════════════
-
-Overall rating breakdown, ideal buyers, alternatives, bottom line recommendation.
-
-═══════════════════════════════════════════════════════════════════
-CRITICAL WRITING REQUIREMENTS:
-═══════════════════════════════════════════════════════════════════
-
-1. Word Count: ${minimumRequired}+ words
-2. SEO: Primary keyword in H1, first 100 words, and naturally throughout
-3. Readability: 8th grade, active voice 80%+
-4. Evidence & Credibility with E-E-A-T signals
-5. Proper markdown formatting
-
-Generate the complete article now following this exact structure.`;
+CRITICAL: Include "Affiliate Disclosure" notice and "Verified Purchase" badge references. Maintain E-E-A-T signals throughout.
+CRITICAL: Use markdown tables extensively. Return ONLY the complete markdown article.`;
 
     console.log('Calling Lovable AI...');
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -320,8 +193,8 @@ Generate the complete article now following this exact structure.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7,
-        max_tokens: 16000,
+        temperature: 0.4,
+        max_tokens: 8000,
       }),
     });
 

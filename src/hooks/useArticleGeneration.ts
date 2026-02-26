@@ -78,16 +78,16 @@ export function useArticleGeneration() {
       setProgress(20);
       setProgressMessage("Connecting to AI engine...");
 
-      const calculatedWordCount = Math.max(
-        config.wordCount || 3500,
-        config.competitorData?.targetWordCount || 3500,
-        config.competitorData?.longestCompetitor 
-          ? Math.ceil(config.competitorData.longestCompetitor * 1.25) 
-          : 3500,
-        3500
+      // Density-first strategy: aim for lean, high-authority content
+      // Target ~1500 words or match the shortest competitive content, whichever is lower
+      const competitorShortest = config.competitorData?.shortestCompetitor || 1500;
+      const calculatedWordCount = Math.min(
+        config.wordCount || 1500,
+        competitorShortest,
+        2000 // hard cap for density-first approach
       );
 
-      console.log('Enforcing minimum word count:', calculatedWordCount);
+      console.log('Density-first target word count:', calculatedWordCount);
 
       // Build product data summary for edge functions
       const productDataSummary = config.amazonProductData ? {
@@ -120,13 +120,14 @@ export function useArticleGeneration() {
         schemaType: "Product + Review",
         includeComparison: true,
         includeFaq: true,
-        faqCount: 20,
+        faqCount: 8,
         analyzeReviews: true,
+        contentStrategy: "density-first",
         imageCount: config.bodyImageCount,
         imageFormat: "WebP",
         enableAffiliate: !!config.affiliateId,
         amazonAffiliateId: config.affiliateId || "",
-        ctaCount: config.ctaPlacement === "after-sections" ? 6 : 2,
+        ctaCount: config.ctaPlacement === "after-sections" ? 3 : 1,
         ctaStyle: config.ctaStyle,
         competitorData: {
           targetWordCount: config.competitorData?.targetWordCount || 3500,
@@ -143,7 +144,7 @@ export function useArticleGeneration() {
       };
 
       setProgress(30);
-      setProgressMessage(`Generating ${calculatedWordCount.toLocaleString()}+ word article${productDataSummary ? ' with real product data' : ''}...`);
+      setProgressMessage(`Generating high-density article (~${calculatedWordCount.toLocaleString()} words)${productDataSummary ? ' with real product data' : ''}...`);
 
       const requestBody = config.articleType === "amazon-review" 
         ? { productUrl: config.productUrl || config.productName, configuration: edgeConfig }
@@ -255,7 +256,7 @@ export function useArticleGeneration() {
       }
 
       setProgress(100);
-      setProgressMessage(`Article generated successfully! (${actualWordCount.toLocaleString()} words)`);
+      setProgressMessage(`High-density article generated! (${actualWordCount.toLocaleString()} words)`);
 
       return {
         id: savedArticle.id,

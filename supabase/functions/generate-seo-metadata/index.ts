@@ -40,42 +40,41 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are an expert SEO specialist with 10+ years of experience optimizing content for search engines. Your expertise includes:
-- Creating titles that are 50-60 characters, placing primary keywords at the front
+    const systemPrompt = `You are an expert SEO specialist focused on CTR-optimized, high-authority short-form content. Your expertise includes:
+- Creating SHORT titles UNDER 55 characters that maximize click-through rate
+- Front-loading the primary short-tail keyword for maximum SERP visibility
 - Writing meta descriptions that are 150-155 characters with compelling CTAs
-- Using power words (Best, Ultimate, Complete, Essential, Proven, Expert) strategically
-- Including year 2025 for freshness signals
-- Front-loading important keywords
-- Creating urgency and curiosity`;
+- Using power words (Best, Top, Review, Guide, vs) strategically
+- Including year 2026 for freshness signals
+- Prioritizing short-tail, high-volume keywords over long-tail phrases`;
 
     const productContext = productName ? ` for the product "${productName}"` : '';
     const userPrompt = `Generate SEO metadata for a ${articleType} article about: "${topic}"${productContext}
 
 Requirements:
-1. Generate 3 title options (EXACTLY 50-60 characters each):
-   - Keyword-focused: Start with primary keyword, clear and direct
-   - Benefit-driven: Emphasize value proposition and results
-   - Question: Engaging question format that targets search intent
+1. Generate 3 title options (STRICTLY UNDER 55 characters each — shorter is better):
+   - Keyword-focused: Start with primary keyword, punchy and direct
+   - Benefit-driven: Emphasize value, keep it tight
+   - Question: Engaging question that captures search intent
    
-2. Primary Keyword: The main 2-4 word phrase that best represents the topic
+2. Primary Keyword: A short-tail, high-volume keyword (2-3 words max). Focus on broad search terms, NOT long-tail.
 
-3. Secondary Keywords: Provide exactly 5 related keywords/phrases that support the primary keyword
+3. Secondary Keywords: Provide EXACTLY 3 of the most relevant LSI terms. Quality over quantity — no keyword stuffing.
 
 4. Meta Description: Write a compelling 150-155 character description that:
    - Includes the primary keyword naturally
    - Has a clear call-to-action
-   - Mentions key benefits
    - Creates urgency or curiosity
 
 Return ONLY a valid JSON object in this exact format (no markdown, no extra text):
 {
   "titles": [
-    {"type": "keyword-focused", "text": "Title here", "charCount": 55},
-    {"type": "benefit-driven", "text": "Title here", "charCount": 58},
-    {"type": "question", "text": "Title here", "charCount": 52}
+    {"type": "keyword-focused", "text": "Title here", "charCount": 45},
+    {"type": "benefit-driven", "text": "Title here", "charCount": 48},
+    {"type": "question", "text": "Title here", "charCount": 42}
   ],
-  "primaryKeyword": "keyword phrase",
-  "secondaryKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
+  "primaryKeyword": "short keyword",
+  "secondaryKeywords": ["lsi1", "lsi2", "lsi3"],
   "metaDescription": "Description here",
   "characterCounts": {
     "metaDescription": 152

@@ -141,6 +141,15 @@ const ContentWizard = () => {
     }
   }, [currentStep, productName, targetKeyword]);
 
+  // Auto-fill SEO fields when entering step 4
+  const [seoAutoFilled, setSeoAutoFilled] = useState(false);
+  useEffect(() => {
+    if (currentStep === 4 && !seoAutoFilled && (productName || targetKeyword)) {
+      setSeoAutoFilled(true);
+      handleAutoFillSEO();
+    }
+  }, [currentStep]);
+
   const handleAutoFillSEO = async () => {
     if (!productName && !targetKeyword) {
       toast.error("Please enter a product name or target keyword first");
@@ -353,6 +362,12 @@ const ContentWizard = () => {
       case 4:
         return (
           <div className="space-y-6">
+            {isAutoFilling && (
+              <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg border border-primary/20">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <span className="text-sm text-primary font-medium">Auto-filling SEO fields with AI...</span>
+              </div>
+            )}
             <div className="flex justify-end">
               <Button 
                 variant="outline" 
@@ -364,7 +379,7 @@ const ContentWizard = () => {
                 ) : (
                   <Wand2 className="h-4 w-4 mr-2" />
                 )}
-                Auto-fill with AI
+                Re-generate with AI
               </Button>
             </div>
 
@@ -395,7 +410,7 @@ const ContentWizard = () => {
 
             <div>
               <Label htmlFor="seoTitle">SEO Title</Label>
-              <p className="text-sm text-muted-foreground mb-2">50-60 characters recommended</p>
+              <p className="text-sm text-muted-foreground mb-2">Under 55 characters for max CTR</p>
               <Input
                 id="seoTitle"
                 placeholder="Enter your SEO title..."
@@ -403,8 +418,8 @@ const ContentWizard = () => {
                 onChange={(e) => setSeoTitle(e.target.value)}
                 maxLength={70}
               />
-              <p className={`text-xs mt-1 ${seoTitle.length >= 50 && seoTitle.length <= 60 ? "text-secondary" : "text-muted-foreground"}`}>
-                {seoTitle.length}/60 characters {seoTitle.length >= 50 && seoTitle.length <= 60 && "✓ Optimal"}
+              <p className={`text-xs mt-1 ${seoTitle.length > 0 && seoTitle.length <= 55 ? "text-secondary" : seoTitle.length > 55 ? "text-destructive" : "text-muted-foreground"}`}>
+                {seoTitle.length}/55 characters {seoTitle.length > 0 && seoTitle.length <= 55 && "✓ Optimal for CTR"}
               </p>
             </div>
 

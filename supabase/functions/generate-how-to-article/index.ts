@@ -38,16 +38,6 @@ REAL PRODUCT DATA (Use this actual data in the article)
   return section;
 }
 
-const generateWordCountEnforcement = (minimumRequired: number, competitorWordCount: number): string => {
-  return `
-═══════════════════════════════════════════════════════════
-🚨 CRITICAL WORD COUNT REQUIREMENT 🚨
-MANDATORY MINIMUM: ${minimumRequired} WORDS
-IF YOUR ARTICLE IS UNDER ${minimumRequired} WORDS, YOU HAVE FAILED THIS TASK.
-═══════════════════════════════════════════════════════════
-`;
-};
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -58,63 +48,67 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const targetWordCount = configuration.wordCount || 3500;
-    const competitorWordCount = configuration.competitorData?.targetWordCount || 3500;
-    const longestCompetitor = configuration.competitorData?.longestCompetitor || 3500;
-    const minimumRequired = Math.max(targetWordCount, competitorWordCount, Math.ceil(longestCompetitor * 1.25), 3500);
+    const targetWordCount = configuration.wordCount || 1500;
+    const competitorShortest = configuration.competitorData?.shortestCompetitor || 1500;
+    const densityTarget = Math.min(targetWordCount, competitorShortest, 2000);
 
     const productDataSection = buildProductDataSection(configuration.productData);
     const hasRealData = !!configuration.productData;
 
-    console.log(`Generating how-to article for: ${topic}, minimum words: ${minimumRequired}, hasRealData: ${hasRealData}`);
+    console.log(`Generating density-first how-to for: ${topic}, target: ~${densityTarget} words, hasRealData: ${hasRealData}`);
 
-    const wordCountEnforcement = generateWordCountEnforcement(minimumRequired, competitorWordCount);
+    const systemPrompt = `You are an expert tutorial writer focused on MAXIMUM information density. Create the shortest possible how-to guide that contains 100% of the SEO signals needed to outrank long-form competitors.
 
-    const systemPrompt = `You are an expert tutorial writer specializing in clear, actionable how-to guides. You create comprehensive, SEO-optimized instructional content that helps readers accomplish specific tasks successfully.
+═══════════════════════════════════════════════════════════
+🎯 DENSITY-FIRST CONTENT STRATEGY 🎯
+TARGET: ~${densityTarget} WORDS (every sentence must earn its place)
+RULE: Numbered steps, data tables, and bulleted lists over prose.
+═══════════════════════════════════════════════════════════
 
-${wordCountEnforcement}
+- Featured Snippet Bait: 40-word summary that captures the HowTo rich result
+- Use HowTo schema-friendly formatting (numbered steps with clear names)
+- Keep ALL Schema.org and E-E-A-T signals
+- Include Affiliate Disclosure
 
-${hasRealData ? 'You have REAL scraped Amazon product data. Reference actual product specs, features, and user feedback when recommending products within the tutorial.' : ''}`;
+${hasRealData ? 'You have REAL scraped Amazon product data. Reference actual specs and features when recommending products.' : ''}`;
 
-    const userPrompt = `Create a comprehensive how-to article about: ${topic}
+    const userPrompt = `Create a HIGH-DENSITY how-to article about: ${topic}
 ${productDataSection}
 CONFIGURATION:
-- Target Word Count: ${minimumRequired} words (MINIMUM)
+- Target: ~${densityTarget} words (lean & mean)
 - Tone: ${configuration.tone}
 - Reading Level: ${configuration.readingLevel}
 - Primary Keyword: ${configuration.primaryKeyword || 'auto-detect'}
 - Secondary Keywords: ${configuration.secondaryKeywords || 'auto-detect'}
-- Meta Description: ${configuration.metaDescription || 'auto-generate'}
-- Difficulty Level: ${configuration.difficulty || 'Beginner to Intermediate'}
-- Number of Steps: ${configuration.stepCount || '10-15'}
+- Steps: ${configuration.stepCount || '8-10'}
 - Schema Type: ${configuration.schemaType}
-- FAQ Count: ${configuration.faqCount || 20}
-- Image Guidelines: ${configuration.imageCount} images in ${configuration.imageFormat} format
+- FAQ: ${configuration.faqCount || 8} questions
 
-STRUCTURE (14 Comprehensive Sections):
+DENSITY-FIRST STRUCTURE:
 
-## 1. Title & Meta - "How to [Task]: Complete Step-by-Step Guide [Year]"
-## 2. Introduction & Overview (300-400 words)
-## 3. What You'll Need (200-300 words)
-${hasRealData ? 'Include the real product as a recommended tool/material with its actual price and features.' : ''}
-## 4. Before You Begin (300-400 words)
-## 5. Quick Reference Summary
-## 6. Step-by-Step Instructions (1500-2000 words, 150-200 words per step)
-${hasRealData ? 'Reference the real product in relevant steps, using actual specs and features.' : ''}
-## 7. Verification & Quality Check (300-400 words)
-## 8. Troubleshooting Guide (500-700 words, 6-8 problems)
-## 9. Advanced Tips & Variations (400-500 words)
-## 10. Common Mistakes & How to Avoid Them (400-500 words, 6-8 mistakes)
-## 11. Maintenance & Longevity (250-350 words)
-## 12. Cost Breakdown & Budgeting (250-350 words)
-## 13. FAQ Section (${configuration.faqCount || 20} questions, 500-700 words)
-${hasRealData && configuration.productData?.customerQuestions?.length ? 'Include real customer Q&A from the product data.' : ''}
-## 14. Conclusion & Next Steps (300-400 words)
+## 1. Quick Answer (EXACTLY 40 words)
+Single paragraph directly answering "How to [task]?" — Featured Snippet / HowTo rich result bait.
 
-WRITING STYLE: ${configuration.tone}, ${configuration.readingLevel}, active voice, imperative mood
-ENGAGEMENT: ${configuration.ctaCount} strategic CTAs
+## 2. What You'll Need Table
+| Item | Why | Est. Cost |
+${hasRealData ? 'Include the real product with actual price.' : ''}
 
-REMEMBER: MUST be at least ${minimumRequired} words. Return ONLY the complete markdown article.`;
+## 3. Step-by-Step Instructions (${configuration.stepCount || '8-10'} steps)
+Each step: **Step Name** → 2-3 sentences max → Pro tip (1 sentence).
+${hasRealData ? 'Reference the real product in relevant steps with actual specs.' : ''}
+
+## 4. Quick Troubleshooting Table
+| Problem | Fix |
+4-5 common issues, 1-sentence fixes.
+
+## 5. FAQ (${configuration.faqCount || 8} questions)
+${hasRealData && configuration.productData?.customerQuestions?.length ? 'Use real customer Q&A.' : ''}
+1-2 sentence answers. Direct and factual.
+
+## 6. Summary Checklist
+Bulleted checklist of all steps for quick reference.
+
+CRITICAL: Use markdown tables and numbered lists extensively. Maintain E-E-A-T signals. Return ONLY complete markdown.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -126,7 +120,7 @@ REMEMBER: MUST be at least ${minimumRequired} words. Return ONLY the complete ma
           { role: "user", content: userPrompt },
         ],
         temperature: 0.4,
-        max_tokens: 16000,
+        max_tokens: 8000,
       }),
     });
 
@@ -142,10 +136,10 @@ REMEMBER: MUST be at least ${minimumRequired} words. Return ONLY the complete ma
     const generatedContent = data.choices[0].message.content;
     const wordCount = generatedContent.split(/\s+/).length;
 
-    console.log(`Article generated successfully. Word count: ${wordCount}`);
+    console.log(`How-to generated. Word count: ${wordCount}`);
 
     return new Response(
-      JSON.stringify({ content: generatedContent, wordCount, targetWordCount: minimumRequired, generatedAt: new Date().toISOString() }),
+      JSON.stringify({ content: generatedContent, wordCount, targetWordCount: densityTarget, generatedAt: new Date().toISOString() }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
