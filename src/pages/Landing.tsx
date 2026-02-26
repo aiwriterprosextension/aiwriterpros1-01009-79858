@@ -13,25 +13,25 @@ import logoWhite from "@/assets/logo-white.png";
 // Animated counter hook
 const useAnimatedCounter = (end: number, duration: number = 2000) => {
   const [count, setCount] = useState(0);
-  
+
   useEffect(() => {
     let startTime: number;
     let animationFrame: number;
-    
+
     const animate = (currentTime: number) => {
       if (!startTime) startTime = currentTime;
       const progress = Math.min((currentTime - startTime) / duration, 1);
       setCount(Math.floor(progress * end));
-      
+
       if (progress < 1) {
         animationFrame = requestAnimationFrame(animate);
       }
     };
-    
+
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
   }, [end, duration]);
-  
+
   return count;
 };
 
@@ -39,7 +39,7 @@ const Landing = () => {
   const scrollToFeatures = () => {
     document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
   };
-  
+
   // Animated stats
   const articlesGenerated = useAnimatedCounter(15847);
   const usersCount = useAnimatedCounter(2341);
@@ -49,10 +49,10 @@ const Landing = () => {
     <>
       <Helmet>
         <title>AIWriterPros | AI-Powered SEO Content Generator - Rank #1 on Google</title>
-        <meta 
-          name="description" 
-          content="Create comprehensive, SEO-optimized Amazon reviews, buying guides, and comparison articles that rank on Google. AI-powered content generation built by SEO experts. Start free." 
-        />
+        <meta
+          name="description"
+          content="Create comprehensive, SEO-optimized Amazon reviews, buying guides, and comparison articles that rank on Google. AI-powered content generation built by SEO experts. Start free." />
+
         <link rel="canonical" href="https://aiwriterpros.com/" />
         <meta property="og:title" content="AIWriterPros | AI-Powered SEO Content Generator" />
         <meta property="og:description" content="Create comprehensive, SEO-optimized Amazon reviews, buying guides, and comparison articles that rank on Google." />
@@ -73,13 +73,13 @@ const Landing = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             {/* Logo in Hero */}
-            <div className="mb-8">
-              <img 
-                src={logoWhite} 
-                alt="AIWriterPros" 
-                className="h-12 md:h-16 mx-auto" 
-              />
-            </div>
+            
+
+
+
+
+
+
             
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
               <Award className="h-4 w-4" />
@@ -100,12 +100,12 @@ const Landing = () => {
                   Get Instant Access <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="w-full sm:w-auto bg-white/10 border-white/20 text-white hover:bg-white/20"
-                onClick={scrollToFeatures}
-              >
+              <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  onClick={scrollToFeatures}>
+
                 See How It Works
               </Button>
             </div>
@@ -193,13 +193,13 @@ const Landing = () => {
                   "Manual keyword research",
                   "Guessing what competitors rank for",
                   "No schema markup expertise",
-                  "Limited output capacity"
-                ].map((item, i) => (
+                  "Limited output capacity"].
+                  map((item, i) =>
                   <li key={i} className="flex items-center gap-2 text-muted-foreground">
                     <X className="h-5 w-5 text-destructive flex-shrink-0" />
                     <span>{item}</span>
                   </li>
-                ))}
+                  )}
               </ul>
             </div>
             
@@ -216,13 +216,13 @@ const Landing = () => {
                   "AI-powered keyword research",
                   "Automatic competitor analysis",
                   "Schema markup included",
-                  "Unlimited scaling potential"
-                ].map((item, i) => (
+                  "Unlimited scaling potential"].
+                  map((item, i) =>
                   <li key={i} className="flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0" />
                     <span>{item}</span>
                   </li>
-                ))}
+                  )}
               </ul>
             </div>
           </div>
@@ -253,13 +253,13 @@ const Landing = () => {
                 author: "Jennifer Park",
                 role: "E-commerce Manager",
                 rating: 5
-              }
-            ].map((testimonial, i) => (
+              }].
+              map((testimonial, i) =>
               <div key={i} className="card-elevated p-6">
                 <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, j) => (
-                    <Star key={j} className="h-5 w-5 fill-accent text-accent" />
-                  ))}
+                  {[...Array(testimonial.rating)].map((_, j) =>
+                  <Star key={j} className="h-5 w-5 fill-accent text-accent" />
+                  )}
                 </div>
                 <p className="text-foreground mb-4 italic">"{testimonial.quote}"</p>
                 <div>
@@ -267,7 +267,7 @@ const Landing = () => {
                   <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                 </div>
               </div>
-            ))}
+              )}
           </div>
         </div>
       </section>
@@ -308,8 +308,8 @@ const Landing = () => {
                 icon: TrendingUp,
                 title: "Competitor Analysis",
                 description: "Identify content gaps automatically"
-              }
-            ].map((feature, i) => (
+              }].
+              map((feature, i) =>
               <div key={i} className="card-elevated p-6 text-center">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 text-primary rounded-lg mb-4">
                   <feature.icon className="h-6 w-6" />
@@ -317,7 +317,7 @@ const Landing = () => {
                 <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
               </div>
-            ))}
+              )}
           </div>
         </div>
       </section>
@@ -364,29 +364,29 @@ const Landing = () => {
                 features: ["Top 10+ items", "Category winners", "Detailed reviews", "Quick comparisons"],
                 path: "/product-roundups",
                 available: false
-              }
-            ].map((type, i) => (
+              }].
+              map((type, i) =>
               <div key={i} className="card-interactive p-6">
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold">{type.name}</h3>
-                  {type.available ? (
-                    <span className="text-xs bg-secondary text-secondary-foreground px-3 py-1 rounded-full font-semibold">
+                  {type.available ?
+                  <span className="text-xs bg-secondary text-secondary-foreground px-3 py-1 rounded-full font-semibold">
                       Available Now
-                    </span>
-                  ) : (
-                    <span className="text-xs bg-muted-foreground/20 text-muted-foreground px-3 py-1 rounded-full font-semibold">
+                    </span> :
+
+                  <span className="text-xs bg-muted-foreground/20 text-muted-foreground px-3 py-1 rounded-full font-semibold">
                       Coming Soon
                     </span>
-                  )}
+                  }
                 </div>
                 <p className="text-muted-foreground mb-4">{type.description}</p>
                 <ul className="space-y-2 mb-4">
-                  {type.features.map((feature, j) => (
-                    <li key={j} className="flex items-center text-sm">
+                  {type.features.map((feature, j) =>
+                  <li key={j} className="flex items-center text-sm">
                       <CheckCircle className="h-4 w-4 text-secondary mr-2" />
                       <span>{feature}</span>
                     </li>
-                  ))}
+                  )}
                 </ul>
                 <Link to={type.path}>
                   <Button variant="outline" className="w-full">
@@ -394,7 +394,7 @@ const Landing = () => {
                   </Button>
                 </Link>
               </div>
-            ))}
+              )}
           </div>
         </div>
       </section>
@@ -420,8 +420,8 @@ const Landing = () => {
                 step: 3,
                 title: "Review and Publish",
                 description: "Review your article, make any tweaks, and export with schema markup ready to publish."
-              }
-            ].map((item) => (
+              }].
+              map((item) =>
               <div key={item.step} className="flex gap-6">
                 <div className="flex-shrink-0">
                   <div className="flex items-center justify-center w-12 h-12 bg-primary text-primary-foreground rounded-full font-bold text-xl">
@@ -433,7 +433,7 @@ const Landing = () => {
                   <p className="text-muted-foreground">{item.description}</p>
                 </div>
               </div>
-            ))}
+              )}
           </div>
         </div>
       </section>
@@ -468,28 +468,28 @@ const Landing = () => {
                 features: ["Unlimited articles", "Dedicated support", "Team collaboration", "Custom integrations"],
                 cta: "Contact Sales",
                 popular: false
-              }
-            ].map((tier, i) => (
+              }].
+              map((tier, i) =>
               <div key={i} className={`card-elevated p-8 ${tier.popular ? "ring-2 ring-primary" : ""} relative`}>
-                {tier.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                {tier.popular &&
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
                       Most Popular
                     </span>
                   </div>
-                )}
+                }
                 <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
                 <div className="mb-6">
                   <span className="text-4xl font-bold">{tier.price}</span>
                   <span className="text-muted-foreground">{tier.period}</span>
                 </div>
                 <ul className="space-y-3 mb-8">
-                  {tier.features.map((feature, j) => (
-                    <li key={j} className="flex items-center">
+                  {tier.features.map((feature, j) =>
+                  <li key={j} className="flex items-center">
                       <CheckCircle className="h-5 w-5 text-secondary mr-2" />
                       <span>{feature}</span>
                     </li>
-                  ))}
+                  )}
                 </ul>
                 <Link to="/pricing">
                   <Button className={`w-full ${tier.popular ? "bg-primary text-primary-foreground" : ""}`}>
@@ -497,7 +497,7 @@ const Landing = () => {
                   </Button>
                 </Link>
               </div>
-            ))}
+              )}
           </div>
 
           <div className="text-center mt-8">
@@ -526,8 +526,8 @@ const Landing = () => {
         <EmailCaptureCTA />
         <Footer />
       </div>
-    </>
-  );
+    </>);
+
 };
 
 export default Landing;
